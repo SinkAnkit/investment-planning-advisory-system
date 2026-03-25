@@ -1,82 +1,96 @@
 /* ══════════════════════════════════════════════════════════════════════
-   Investment Planning Advisory System — Dashboard Logic
+   Investment Planning Advisory System — Terminal UI Logic
    ══════════════════════════════════════════════════════════════════════ */
 
 let priceChart = null;
 let sentimentChart = null;
 
-// ── Utility Helpers ────────────────────────────────────────────────────
+/* ── Helpers ────────────────────────────────────────────────────────── */
 
-function formatCurrency(val) {
+function fmt$(val) {
     if (val == null || val === 'N/A') return '—';
-    const num = Number(val);
-    if (isNaN(num)) return '—';
-    if (Math.abs(num) >= 1e12) return '$' + (num / 1e12).toFixed(2) + 'T';
-    if (Math.abs(num) >= 1e9) return '$' + (num / 1e9).toFixed(2) + 'B';
-    if (Math.abs(num) >= 1e6) return '$' + (num / 1e6).toFixed(1) + 'M';
-    return '$' + num.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const n = Number(val);
+    if (isNaN(n)) return '—';
+    if (Math.abs(n) >= 1e12) return '$' + (n / 1e12).toFixed(2) + 'T';
+    if (Math.abs(n) >= 1e9) return '$' + (n / 1e9).toFixed(2) + 'B';
+    if (Math.abs(n) >= 1e6) return '$' + (n / 1e6).toFixed(1) + 'M';
+    return '$' + n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
-function formatNumber(val) {
+function fmtN(val) {
     if (val == null || val === 'N/A') return '—';
-    const num = Number(val);
-    if (isNaN(num)) return '—';
-    if (Math.abs(num) >= 1e9) return (num / 1e9).toFixed(2) + 'B';
-    if (Math.abs(num) >= 1e6) return (num / 1e6).toFixed(1) + 'M';
-    if (Math.abs(num) >= 1e3) return (num / 1e3).toFixed(1) + 'K';
-    return num.toLocaleString();
+    const n = Number(val);
+    if (isNaN(n)) return '—';
+    if (Math.abs(n) >= 1e9) return (n / 1e9).toFixed(2) + 'B';
+    if (Math.abs(n) >= 1e6) return (n / 1e6).toFixed(1) + 'M';
+    if (Math.abs(n) >= 1e3) return (n / 1e3).toFixed(1) + 'K';
+    return n.toLocaleString();
 }
 
-function formatPercent(val) {
-    if (val == null || val === 'N/A') return '—';
-    const num = Number(val);
-    if (isNaN(num)) return '—';
-    return (num * 100).toFixed(2) + '%';
+function fmtP(val) {
+    if (val == null) return '—';
+    return (Number(val) * 100).toFixed(2) + '%';
 }
 
-function formatDecimal(val, digits = 2) {
-    if (val == null || val === 'N/A') return '—';
-    const num = Number(val);
-    if (isNaN(num)) return '—';
-    return num.toFixed(digits);
+function fmtD(val, d = 2) {
+    if (val == null) return '—';
+    return Number(val).toFixed(d);
 }
 
-// ── Loading Animation ──────────────────────────────────────────────────
+/* ── Loading ────────────────────────────────────────────────────────── */
 
 function showLoading() {
     document.getElementById('loadingOverlay').style.display = 'flex';
     document.getElementById('mainContent').style.display = 'none';
     document.getElementById('welcomeSection').style.display = 'none';
-    const prev = document.getElementById('previousSection');
-    if (prev) prev.style.display = 'none';
 
-    const steps = document.querySelectorAll('.step');
-    steps.forEach(s => { s.classList.remove('active', 'done'); });
+    // Pipeline sidebar
+    for (let i = 1; i <= 5; i++) {
+        const el = document.getElementById('pipe' + i);
+        if (el) { el.classList.remove('active', 'done'); }
+    }
+    // Loading terminal lines
+    for (let i = 1; i <= 5; i++) {
+        const el = document.getElementById('ls' + i);
+        if (el) { el.classList.remove('active', 'done'); }
+    }
 
-    let current = 0;
+    let step = 1;
     const interval = setInterval(() => {
-        if (current > 0) steps[current - 1].classList.replace('active', 'done');
-        if (current < steps.length) {
-            steps[current].classList.add('active');
-            current++;
+        if (step > 1) {
+            const prev = document.getElementById('ls' + (step - 1));
+            const prevPipe = document.getElementById('pipe' + (step - 1));
+            if (prev) { prev.classList.remove('active'); prev.classList.add('done'); }
+            if (prevPipe) { prevPipe.classList.remove('active'); prevPipe.classList.add('done'); }
+        }
+        if (step <= 5) {
+            const cur = document.getElementById('ls' + step);
+            const curPipe = document.getElementById('pipe' + step);
+            if (cur) cur.classList.add('active');
+            if (curPipe) curPipe.classList.add('active');
+            step++;
         } else {
             clearInterval(interval);
         }
-    }, 700);
+    }, 600);
     window._loadingInterval = interval;
 }
 
 function hideLoading() {
     if (window._loadingInterval) clearInterval(window._loadingInterval);
-    const steps = document.querySelectorAll('.step');
-    steps.forEach(s => { s.classList.remove('active'); s.classList.add('done'); });
+    for (let i = 1; i <= 5; i++) {
+        const el = document.getElementById('ls' + i);
+        const pipe = document.getElementById('pipe' + i);
+        if (el) { el.classList.remove('active'); el.classList.add('done'); }
+        if (pipe) { pipe.classList.remove('active'); pipe.classList.add('done'); }
+    }
     setTimeout(() => {
         document.getElementById('loadingOverlay').style.display = 'none';
         document.getElementById('mainContent').style.display = 'block';
-    }, 500);
+    }, 400);
 }
 
-// ── Core Analysis ──────────────────────────────────────────────────────
+/* ── Core ───────────────────────────────────────────────────────────── */
 
 async function analyzeStock() {
     const input = document.getElementById('tickerInput');
@@ -95,342 +109,213 @@ async function runAnalysis(ticker) {
     try {
         const res = await fetch(`/api/analyze/${ticker}`);
         const data = await res.json();
-
         if (data.status === 'error') {
-            alert(`Error analyzing ${ticker}: ${data.error}`);
+            alert(`Error: ${data.error}`);
             hideLoading();
             return;
         }
-
-        populateDashboard(data);
+        populate(data);
         hideLoading();
         fetchPriceChart(ticker);
     } catch (err) {
-        console.error('Analysis failed:', err);
-        alert('Failed to analyze stock. Please check the console for details.');
+        console.error(err);
+        alert('Analysis failed. Check console.');
         hideLoading();
     }
 }
 
-// ── Populate Dashboard ─────────────────────────────────────────────────
+/* ── Populate All ───────────────────────────────────────────────────── */
 
-function populateDashboard(data) {
-    const stock = data.stock || {};
-    const insight = data.insight || {};
-    const sentiment = data.sentiment || {};
-    const risk = data.risk || {};
+function populate(data) {
+    const s = data.stock || {};
+    const ins = data.insight || {};
+    const sen = data.sentiment || {};
+    const r = data.risk || {};
 
-    // Stock header
-    document.getElementById('stockName').textContent = stock.name || stock.ticker || '—';
-    document.getElementById('stockTicker').textContent = stock.ticker || '—';
-    document.getElementById('stockSector').textContent = stock.sector || 'N/A';
-    document.getElementById('stockIndustry').textContent = stock.industry || '';
+    // Stock bar
+    document.getElementById('stockTicker').textContent = s.ticker || '—';
+    document.getElementById('stockName').textContent = s.name || s.ticker || '—';
+    document.getElementById('stockSector').textContent = s.sector || '';
 
     // Price
-    const price = stock.price;
-    document.getElementById('stockPrice').textContent = price ? `$${Number(price).toFixed(2)}` : '—';
-
-    // Change
-    const prevClose = stock.previous_close;
+    document.getElementById('stockPrice').textContent = s.price ? `$${Number(s.price).toFixed(2)}` : '—';
     const changeEl = document.getElementById('stockChange');
-    if (price && prevClose) {
-        const changePct = ((price - prevClose) / prevClose * 100);
-        const changeAbs = (price - prevClose);
-        changeEl.textContent = `${changePct >= 0 ? '▲' : '▼'} $${Math.abs(changeAbs).toFixed(2)} (${changePct >= 0 ? '+' : ''}${changePct.toFixed(2)}%)`;
-        changeEl.className = `stock-change ${changePct >= 0 ? 'positive' : 'negative'}`;
+    if (s.price && s.previous_close) {
+        const pct = ((s.price - s.previous_close) / s.previous_close * 100);
+        const abs = Math.abs(s.price - s.previous_close);
+        changeEl.textContent = `${pct >= 0 ? '▲' : '▼'} $${abs.toFixed(2)} (${pct >= 0 ? '+' : ''}${pct.toFixed(2)}%)`;
+        changeEl.className = `sb-change ${pct >= 0 ? 'up' : 'down'}`;
     } else {
         changeEl.textContent = '—';
-        changeEl.className = 'stock-change';
+        changeEl.className = 'sb-change';
     }
 
-    // Key metrics
-    document.getElementById('metricMarketCap').textContent = formatCurrency(stock.market_cap);
-    document.getElementById('metricPE').textContent = formatDecimal(stock.pe_ratio, 1);
-    document.getElementById('metric52High').textContent = stock.week_52_high ? `$${Number(stock.week_52_high).toFixed(2)}` : '—';
-    document.getElementById('metric52Low').textContent = stock.week_52_low ? `$${Number(stock.week_52_low).toFixed(2)}` : '—';
-    document.getElementById('metricVolume').textContent = formatNumber(stock.volume);
-    document.getElementById('metricBeta').textContent = formatDecimal(stock.beta);
+    // Metrics strip
+    document.getElementById('metricMarketCap').textContent = fmt$(s.market_cap);
+    document.getElementById('metricPE').textContent = fmtD(s.pe_ratio, 1);
+    document.getElementById('metric52High').textContent = s.week_52_high ? `$${Number(s.week_52_high).toFixed(2)}` : '—';
+    document.getElementById('metric52Low').textContent = s.week_52_low ? `$${Number(s.week_52_low).toFixed(2)}` : '—';
+    document.getElementById('metricVolume').textContent = fmtN(s.volume);
+    document.getElementById('metricBeta').textContent = fmtD(s.beta);
 
-    // Financial health
-    document.getElementById('finRevenue').textContent = formatCurrency(stock.revenue);
-    document.getElementById('finMargin').textContent = formatPercent(stock.profit_margin);
-    document.getElementById('finROE').textContent = formatPercent(stock.return_on_equity);
-    document.getElementById('finDebt').textContent = stock.debt_to_equity != null ? formatDecimal(stock.debt_to_equity, 1) : '—';
-    document.getElementById('finFCF').textContent = formatCurrency(stock.free_cash_flow);
-    document.getElementById('finDividend').textContent = formatPercent(stock.dividend_yield);
+    // Financials
+    document.getElementById('finRevenue').textContent = fmt$(s.revenue);
+    document.getElementById('finMargin').textContent = fmtP(s.profit_margin);
+    document.getElementById('finROE').textContent = fmtP(s.return_on_equity);
+    document.getElementById('finDebt').textContent = s.debt_to_equity != null ? fmtD(s.debt_to_equity, 1) : '—';
+    document.getElementById('finFCF').textContent = fmt$(s.free_cash_flow);
+    document.getElementById('finDividend').textContent = fmtP(s.dividend_yield);
 
-    // AI Recommendation
-    populateRecommendation(insight);
-
-    // Sentiment
-    populateSentiment(sentiment);
-
-    // Risk
-    populateRisk(risk);
-
-    // News
-    populateNews(data);
+    buildRec(ins);
+    buildSentiment(sen);
+    buildRisk(r);
+    buildNews(data);
 }
 
-// ── Recommendation Card ────────────────────────────────────────────────
+/* ── Recommendation ─────────────────────────────────────────────────── */
 
-function populateRecommendation(insight) {
-    const label = document.getElementById('recLabel');
-    const rec = (insight.recommendation || 'HOLD').toUpperCase();
-    label.textContent = rec;
-    label.className = 'rec-label';
+function buildRec(ins) {
+    const rec = (ins.recommendation || 'HOLD').toUpperCase();
+    const el = document.getElementById('recLabel');
+    el.textContent = rec;
+    el.className = 'rec-signal';
+    if (rec.includes('STRONG BUY')) el.classList.add('strong-buy');
+    else if (rec.includes('BUY')) el.classList.add('buy');
+    else if (rec.includes('STRONG SELL')) el.classList.add('strong-sell');
+    else if (rec.includes('SELL')) el.classList.add('sell');
+    else el.classList.add('hold');
 
-    if (rec.includes('STRONG BUY')) label.classList.add('strong-buy');
-    else if (rec.includes('BUY')) label.classList.add('buy');
-    else if (rec.includes('STRONG SELL')) label.classList.add('strong-sell');
-    else if (rec.includes('SELL')) label.classList.add('sell');
-    else label.classList.add('hold');
-
-    // Confidence
     const badge = document.getElementById('confidenceBadge');
-    badge.textContent = `${insight.confidence || 'Medium'} Confidence`;
+    badge.textContent = (ins.confidence || 'MEDIUM').toUpperCase();
+    badge.className = 'ph-badge';
+    if (ins.confidence === 'High') badge.classList.add('green');
+    else if (ins.confidence === 'Low') badge.classList.add('red');
+    else badge.classList.add('amber');
 
-    // Summary
-    document.getElementById('recSummary').textContent = insight.summary || 'No insight available.';
+    document.getElementById('recSummary').textContent = ins.summary || '—';
 
-    // Key reasons
-    const reasonsEl = document.getElementById('recReasons');
-    const reasons = insight.key_reasons || [];
-    if (reasons.length) {
-        reasonsEl.innerHTML = '<h4>✅ Key Reasons</h4>' +
-            reasons.map(r => `<div class="reason-item"><span class="reason-icon">▸</span><span>${r}</span></div>`).join('');
-    } else {
-        reasonsEl.innerHTML = '';
-    }
+    const reasons = ins.key_reasons || [];
+    document.getElementById('recReasons').innerHTML = reasons.length ?
+        '<h4>KEY REASONS</h4>' + reasons.map(r => `<div class="reason-item"><span>▸</span><span>${r}</span></div>`).join('') : '';
 
-    // Risk warnings
-    const warningsEl = document.getElementById('recWarnings');
-    const warnings = insight.risk_warnings || [];
-    if (warnings.length) {
-        warningsEl.innerHTML = '<h4>⚠️ Risk Warnings</h4>' +
-            warnings.map(w => `<div class="warning-item"><span class="warning-icon">▸</span><span>${w}</span></div>`).join('');
-    } else {
-        warningsEl.innerHTML = '';
-    }
+    const warnings = ins.risk_warnings || [];
+    document.getElementById('recWarnings').innerHTML = warnings.length ?
+        '<h4>RISK WARNINGS</h4>' + warnings.map(w => `<div class="warning-item"><span>▸</span><span>${w}</span></div>`).join('') : '';
 }
 
-// ── Sentiment ──────────────────────────────────────────────────────────
+/* ── Sentiment ──────────────────────────────────────────────────────── */
 
-function populateSentiment(sentiment) {
-    const avg = sentiment.average_sentiment || 0;
-    const label = sentiment.overall_label || 'Neutral';
-    const count = sentiment.articles_analyzed || 0;
+function buildSentiment(sen) {
+    const avg = sen.average_sentiment || 0;
+    const label = sen.overall_label || 'Neutral';
 
-    // Value display
-    const valEl = document.getElementById('sentimentValue');
-    valEl.textContent = avg >= 0 ? `+${avg.toFixed(3)}` : avg.toFixed(3);
-    if (avg > 0.05) valEl.style.color = '#4ade80';
-    else if (avg < -0.05) valEl.style.color = '#f87171';
-    else valEl.style.color = '#fbbf24';
+    const scoreEl = document.getElementById('sentimentValue');
+    scoreEl.textContent = avg >= 0 ? `+${avg.toFixed(3)}` : avg.toFixed(3);
+    scoreEl.style.color = avg > 0.05 ? '#00d47e' : avg < -0.05 ? '#f85149' : '#d29922';
 
-    // Label
     const labelEl = document.getElementById('sentimentLabel');
-    labelEl.textContent = label;
-    labelEl.style.color = valEl.style.color;
+    labelEl.textContent = label.toUpperCase();
+    labelEl.className = 'ph-badge';
+    labelEl.classList.add(avg > 0.05 ? 'green' : avg < -0.05 ? 'red' : 'amber');
 
-    // Stats
-    document.getElementById('sentCount').textContent = count;
+    document.getElementById('sentCount').textContent = sen.articles_analyzed || 0;
     document.getElementById('sentScore').textContent = avg >= 0 ? `+${avg.toFixed(4)}` : avg.toFixed(4);
 
-    // Signal
     const signalEl = document.getElementById('sentSignal');
-    if (avg > 0.15) { signalEl.textContent = '🟢 Bullish'; signalEl.style.color = '#4ade80'; }
-    else if (avg > 0.05) { signalEl.textContent = '🟡 Mildly Bullish'; signalEl.style.color = '#fbbf24'; }
-    else if (avg < -0.15) { signalEl.textContent = '🔴 Bearish'; signalEl.style.color = '#f87171'; }
-    else if (avg < -0.05) { signalEl.textContent = '🟠 Mildly Bearish'; signalEl.style.color = '#fb923c'; }
-    else { signalEl.textContent = '⚪ Neutral'; signalEl.style.color = '#9ca3c0'; }
+    if (avg > 0.15) { signalEl.textContent = 'BULLISH'; signalEl.style.color = '#00d47e'; }
+    else if (avg > 0.05) { signalEl.textContent = 'MILDLY BULLISH'; signalEl.style.color = '#d29922'; }
+    else if (avg < -0.15) { signalEl.textContent = 'BEARISH'; signalEl.style.color = '#f85149'; }
+    else if (avg < -0.05) { signalEl.textContent = 'MILDLY BEARISH'; signalEl.style.color = '#d29922'; }
+    else { signalEl.textContent = 'NEUTRAL'; signalEl.style.color = '#8b949e'; }
 
-    // Draw gauge
-    drawSentimentGauge(avg);
-
-    // Sentiment bar chart
-    const recent = sentiment.recent_scores || [];
-    drawSentimentChart(recent);
+    drawSentimentBars(sen.recent_scores || []);
 }
 
-function drawSentimentGauge(value) {
-    const canvas = document.getElementById('sentimentGauge');
-    const ctx = canvas.getContext('2d');
-    const w = canvas.width, h = canvas.height;
-    ctx.clearRect(0, 0, w, h);
-
-    const cx = w / 2, cy = h - 10, r = 85;
-    const startAngle = Math.PI;
-    const endAngle = 2 * Math.PI;
-
-    // Track
-    ctx.beginPath();
-    ctx.arc(cx, cy, r, startAngle, endAngle);
-    ctx.strokeStyle = 'rgba(255,255,255,0.06)';
-    ctx.lineWidth = 14;
-    ctx.lineCap = 'round';
-    ctx.stroke();
-
-    // Gradient fill
-    const grad = ctx.createLinearGradient(cx - r, cy, cx + r, cy);
-    grad.addColorStop(0, '#f87171');
-    grad.addColorStop(0.35, '#fb923c');
-    grad.addColorStop(0.5, '#fbbf24');
-    grad.addColorStop(0.65, '#a3e635');
-    grad.addColorStop(1, '#4ade80');
-
-    const normalized = Math.min(1, Math.max(0, (value + 1) / 2));
-    const fillAngle = startAngle + normalized * Math.PI;
-
-    ctx.beginPath();
-    ctx.arc(cx, cy, r, startAngle, fillAngle);
-    ctx.strokeStyle = grad;
-    ctx.lineWidth = 14;
-    ctx.lineCap = 'round';
-    ctx.stroke();
-
-    // Needle dot
-    const dotX = cx + r * Math.cos(fillAngle);
-    const dotY = cy + r * Math.sin(fillAngle);
-    ctx.beginPath();
-    ctx.arc(dotX, dotY, 8, 0, 2 * Math.PI);
-    ctx.fillStyle = 'white';
-    ctx.shadowColor = 'rgba(99,102,241,0.5)';
-    ctx.shadowBlur = 12;
-    ctx.fill();
-    ctx.shadowBlur = 0;
-    ctx.beginPath();
-    ctx.arc(dotX, dotY, 4, 0, 2 * Math.PI);
-    ctx.fillStyle = '#6366f1';
-    ctx.fill();
-}
-
-function drawSentimentChart(recent) {
+function drawSentimentBars(recent) {
     const ctx = document.getElementById('sentimentChart').getContext('2d');
     if (sentimentChart) sentimentChart.destroy();
 
-    const labels = recent.map((r, i) => r.title ? r.title.substring(0, 25) + '...' : `#${i + 1}`);
-    const values = recent.map(r => r.compound || 0);
-    const colors = values.map(v => v > 0.05 ? 'rgba(74,222,128,0.75)' : v < -0.05 ? 'rgba(248,113,113,0.75)' : 'rgba(251,191,36,0.75)');
-    const borders = values.map(v => v > 0.05 ? 'rgba(74,222,128,1)' : v < -0.05 ? 'rgba(248,113,113,1)' : 'rgba(251,191,36,1)');
+    const labels = recent.map((r, i) => r.title ? r.title.substring(0, 20) + '...' : `#${i + 1}`);
+    const vals = recent.map(r => r.compound || 0);
+    const colors = vals.map(v => v > 0.05 ? 'rgba(0,212,126,0.65)' : v < -0.05 ? 'rgba(248,81,73,0.65)' : 'rgba(210,153,34,0.65)');
+    const borders = vals.map(v => v > 0.05 ? '#00d47e' : v < -0.05 ? '#f85149' : '#d29922');
 
     sentimentChart = new Chart(ctx, {
         type: 'bar',
-        data: {
-            labels,
-            datasets: [{
-                data: values,
-                backgroundColor: colors,
-                borderColor: borders,
-                borderWidth: 1,
-                borderRadius: 6,
-                barPercentage: 0.55,
-            }]
-        },
+        data: { labels, datasets: [{ data: vals, backgroundColor: colors, borderColor: borders, borderWidth: 1, borderRadius: 3, barPercentage: 0.5 }] },
         options: {
-            responsive: true,
-            maintainAspectRatio: false,
+            responsive: true, maintainAspectRatio: false,
             plugins: {
                 legend: { display: false },
                 tooltip: {
-                    backgroundColor: 'rgba(14,14,38,0.95)',
-                    borderColor: 'rgba(99,102,241,0.3)',
-                    borderWidth: 1,
-                    titleFont: { family: "'Inter', sans-serif", size: 11 },
-                    bodyFont: { family: "'JetBrains Mono', monospace", size: 13, weight: '700' },
-                    padding: 12, cornerRadius: 10,
+                    backgroundColor: '#161b22', borderColor: '#30363d', borderWidth: 1,
+                    titleFont: { family: "'Space Grotesk'", size: 11 },
+                    bodyFont: { family: "'IBM Plex Mono'", size: 12, weight: '700' },
+                    padding: 10, cornerRadius: 6,
                     callbacks: {
-                        title: (items) => {
-                            const idx = items[0].dataIndex;
-                            return recent[idx]?.title || `Article ${idx + 1}`;
-                        },
+                        title: (items) => recent[items[0].dataIndex]?.title || '',
                         label: (c) => `Score: ${c.raw >= 0 ? '+' : ''}${c.raw.toFixed(3)}`
                     }
                 }
             },
             scales: {
                 x: { display: false },
-                y: {
-                    min: -1, max: 1,
-                    grid: { color: 'rgba(255,255,255,0.04)' },
-                    ticks: { color: '#7c82a6', font: { size: 11, weight: '600' } }
-                }
+                y: { min: -1, max: 1, grid: { color: 'rgba(48,54,61,0.5)' }, ticks: { color: '#6e7681', font: { size: 10, family: "'IBM Plex Mono'" } } }
             }
         }
     });
 }
 
-// ── Risk ───────────────────────────────────────────────────────────────
+/* ── Risk ───────────────────────────────────────────────────────────── */
 
-function populateRisk(risk) {
+function buildRisk(risk) {
     const score = risk.risk_score || 0;
     const level = (risk.risk_level || 'Medium').toLowerCase();
-    const factors = risk.factors || [];
 
-    // Badge
     const badge = document.getElementById('riskBadge');
-    badge.textContent = risk.risk_level || 'Medium';
-    badge.className = `risk-badge ${level}`;
+    badge.textContent = (risk.risk_level || 'MEDIUM').toUpperCase();
+    badge.className = 'ph-badge';
+    badge.classList.add(level === 'low' ? 'green' : level === 'high' ? 'red' : 'amber');
 
-    // Score number
-    document.getElementById('riskScoreNumber').textContent = score.toFixed(3);
-    const scoreEl = document.getElementById('riskScoreNumber');
-    if (level === 'low') scoreEl.style.color = '#4ade80';
-    else if (level === 'high') scoreEl.style.color = '#f87171';
-    else scoreEl.style.color = '#fbbf24';
+    const numEl = document.getElementById('riskScoreNumber');
+    numEl.textContent = score.toFixed(3);
+    numEl.style.color = level === 'low' ? '#00d47e' : level === 'high' ? '#f85149' : '#d29922';
 
-    // Bar + marker
     const pct = score * 100;
     document.getElementById('riskBarFill').style.width = `${pct}%`;
     document.getElementById('riskBarMarker').style.left = `${pct}%`;
 
-    // Factors
-    const container = document.getElementById('riskFactors');
-    container.innerHTML = factors.map(f => {
-        const dotLevel = f.score > 0.6 ? 'high' : f.score > 0.3 ? 'medium' : 'low';
-        return `<div class="risk-factor">
-            <div class="risk-dot ${dotLevel}"></div>
-            <div><strong>${f.name}</strong> (${f.score.toFixed(2)})<br><span style="font-size:0.78rem; opacity:0.75">${f.detail}</span></div>
-        </div>`;
+    const factors = risk.factors || [];
+    document.getElementById('riskFactors').innerHTML = factors.map(f => {
+        const dot = f.score > 0.6 ? 'high' : f.score > 0.3 ? 'medium' : 'low';
+        return `<div class="risk-factor"><div class="risk-dot ${dot}"></div><div><strong>${f.name}</strong> (${f.score.toFixed(2)})<br><span style="font-size:0.75rem;color:#8b949e">${f.detail}</span></div></div>`;
     }).join('');
 }
 
-// ── News Feed ──────────────────────────────────────────────────────────
+/* ── News ───────────────────────────────────────────────────────────── */
 
-function populateNews(data) {
+function buildNews(data) {
     const feed = document.getElementById('newsFeed');
-    const sentRecent = (data.sentiment && data.sentiment.recent_scores) || [];
+    const recent = (data.sentiment && data.sentiment.recent_scores) || [];
+    if (!recent.length) { feed.innerHTML = '<div class="news-empty">No news found</div>'; return; }
 
-    if (!sentRecent.length) {
-        feed.innerHTML = '<div class="news-empty">No recent news articles found for this ticker</div>';
-        return;
-    }
-
-    feed.innerHTML = sentRecent.map(item => {
-        const score = item.compound || 0;
-        let sentClass = 'neutral', sentText = 'Neutral';
-        if (score > 0.05) { sentClass = 'positive'; sentText = `+${score.toFixed(2)}`; }
-        if (score > 0.25) sentText = `↑ ${score.toFixed(2)}`;
-        if (score < -0.05) { sentClass = 'negative'; sentText = score.toFixed(2); }
-        if (score < -0.25) sentText = `↓ ${score.toFixed(2)}`;
-
-        return `<div class="news-item">
-            <div class="news-title">${item.title || 'Untitled'}</div>
-            <span class="news-sentiment ${sentClass}">${sentText}</span>
-        </div>`;
+    feed.innerHTML = recent.map(item => {
+        const sc = item.compound || 0;
+        let cls = 'neu', txt = '0.00';
+        if (sc > 0.05) { cls = 'pos'; txt = `+${sc.toFixed(2)}`; }
+        else if (sc < -0.05) { cls = 'neg'; txt = sc.toFixed(2); }
+        return `<div class="news-item"><div class="news-title">${item.title || 'Untitled'}</div><span class="news-sent ${cls}">${txt}</span></div>`;
     }).join('');
 }
 
-// ── Price Chart ────────────────────────────────────────────────────────
+/* ── Price Chart ────────────────────────────────────────────────────── */
 
 async function fetchPriceChart(ticker) {
     try {
         const res = await fetch(`/api/prices/${ticker}`);
         const data = await res.json();
         drawPriceChart(data.prices || []);
-    } catch (err) {
-        console.error('Price chart error:', err);
-    }
+    } catch (err) { console.error(err); }
 }
 
 function drawPriceChart(prices) {
@@ -438,74 +323,46 @@ function drawPriceChart(prices) {
     if (priceChart) priceChart.destroy();
 
     const sorted = [...prices].reverse();
-    const labels = sorted.map(p => {
-        const d = new Date(p.date);
-        return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-    });
+    const labels = sorted.map(p => new Date(p.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
     const closes = sorted.map(p => p.close);
-
     const isUp = closes.length >= 2 && closes[closes.length - 1] >= closes[0];
-    const lineColor = isUp ? '#4ade80' : '#f87171';
-    const fillColor = isUp ? 'rgba(74,222,128,0.08)' : 'rgba(248,113,113,0.08)';
+    const color = isUp ? '#00d47e' : '#f85149';
+    const fill = isUp ? 'rgba(0,212,126,0.06)' : 'rgba(248,81,73,0.06)';
 
     priceChart = new Chart(ctx, {
         type: 'line',
         data: {
             labels,
             datasets: [{
-                data: closes,
-                borderColor: lineColor,
-                backgroundColor: fillColor,
-                fill: true,
-                tension: 0.4,
-                pointRadius: 0,
-                pointHoverRadius: 6,
-                pointHoverBackgroundColor: lineColor,
-                pointHoverBorderColor: 'white',
-                pointHoverBorderWidth: 2,
-                borderWidth: 2.5,
+                data: closes, borderColor: color, backgroundColor: fill,
+                fill: true, tension: 0.3, pointRadius: 0,
+                pointHoverRadius: 5, pointHoverBackgroundColor: color,
+                pointHoverBorderColor: '#f0f6fc', pointHoverBorderWidth: 2,
+                borderWidth: 2
             }]
         },
         options: {
-            responsive: true,
-            maintainAspectRatio: false,
+            responsive: true, maintainAspectRatio: false,
             interaction: { intersect: false, mode: 'index' },
             plugins: {
                 legend: { display: false },
                 tooltip: {
-                    backgroundColor: 'rgba(14,14,38,0.95)',
-                    borderColor: 'rgba(99,102,241,0.3)',
-                    borderWidth: 1,
-                    titleFont: { family: "'Inter', sans-serif", size: 12, weight: '600' },
-                    bodyFont: { family: "'JetBrains Mono', monospace", size: 14, weight: '700' },
-                    padding: 14, cornerRadius: 12,
-                    displayColors: false,
-                    callbacks: { label: (c) => `  $${c.raw.toFixed(2)}` }
+                    backgroundColor: '#161b22', borderColor: '#30363d', borderWidth: 1,
+                    titleFont: { family: "'Space Grotesk'", size: 11 },
+                    bodyFont: { family: "'IBM Plex Mono'", size: 13, weight: '700' },
+                    padding: 10, cornerRadius: 6, displayColors: false,
+                    callbacks: { label: c => `  $${c.raw.toFixed(2)}` }
                 }
             },
             scales: {
-                x: {
-                    grid: { display: false },
-                    ticks: { color: '#7c82a6', font: { size: 11, weight: '600' }, maxTicksLimit: 7 }
-                },
-                y: {
-                    grid: { color: 'rgba(255,255,255,0.03)' },
-                    ticks: {
-                        color: '#7c82a6', font: { size: 11, weight: '600' },
-                        callback: v => '$' + v.toFixed(0)
-                    }
-                }
+                x: { grid: { display: false }, ticks: { color: '#6e7681', font: { size: 10, family: "'IBM Plex Mono'" }, maxTicksLimit: 7 } },
+                y: { grid: { color: 'rgba(48,54,61,0.4)' }, ticks: { color: '#6e7681', font: { size: 10, family: "'IBM Plex Mono'" }, callback: v => '$' + v.toFixed(0) } }
             }
         }
     });
 }
 
-// ── Event Listeners ────────────────────────────────────────────────────
+/* ── Events ─────────────────────────────────────────────────────────── */
 
-document.getElementById('tickerInput').addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') analyzeStock();
-});
-
-document.getElementById('tickerInput').addEventListener('input', (e) => {
-    e.target.value = e.target.value.toUpperCase();
-});
+document.getElementById('tickerInput').addEventListener('keydown', e => { if (e.key === 'Enter') analyzeStock(); });
+document.getElementById('tickerInput').addEventListener('input', e => { e.target.value = e.target.value.toUpperCase(); });
