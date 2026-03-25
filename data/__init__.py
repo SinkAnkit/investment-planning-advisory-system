@@ -203,6 +203,18 @@ def get_all_stocks() -> list[dict]:
     return [dict(r) for r in rows]
 
 
+def delete_stock(ticker: str):
+    """Delete a stock and all related records."""
+    conn = get_connection()
+    conn.execute("DELETE FROM sentiment_scores WHERE ticker = ?", (ticker,))
+    conn.execute("DELETE FROM financial_news WHERE ticker = ?", (ticker,))
+    conn.execute("DELETE FROM investment_insights WHERE ticker = ?", (ticker,))
+    conn.execute("DELETE FROM stock_prices WHERE ticker = ?", (ticker,))
+    conn.execute("DELETE FROM stocks WHERE ticker = ?", (ticker,))
+    conn.commit()
+    conn.close()
+
+
 def get_stock_prices(ticker: str, limit: int = 30) -> list[dict]:
     conn = get_connection()
     rows = conn.execute(

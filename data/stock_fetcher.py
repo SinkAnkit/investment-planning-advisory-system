@@ -60,3 +60,23 @@ def fetch_stock_data(ticker: str) -> dict:
 
     stock_data["history"] = price_rows
     return stock_data
+
+
+def fetch_price_history(ticker: str, period: str = "1mo") -> list[dict]:
+    """Fetch price history for a given period (1mo, 3mo, 1y)."""
+    valid_periods = {"1mo", "3mo", "1y"}
+    if period not in valid_periods:
+        period = "1mo"
+    stock = yf.Ticker(ticker)
+    hist = stock.history(period=period)
+    rows = []
+    for date_idx, row in hist.iterrows():
+        rows.append({
+            "date": date_idx.strftime("%Y-%m-%d"),
+            "open": round(row["Open"], 2),
+            "high": round(row["High"], 2),
+            "low": round(row["Low"], 2),
+            "close": round(row["Close"], 2),
+            "volume": int(row["Volume"]),
+        })
+    return rows

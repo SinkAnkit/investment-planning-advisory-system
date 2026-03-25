@@ -301,19 +301,26 @@ body {
 
 .history-item {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    padding: 6px 8px;
+    gap: 2px;
     border-radius: 4px;
-    border: none;
-    background: transparent;
-    cursor: pointer;
-    font-family: var(--font);
     transition: background 0.15s;
 }
 
 .history-item:hover {
     background: var(--bg-4);
+}
+
+.hist-btn {
+    display: flex;
+    flex: 1;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 8px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-family: var(--font);
 }
 
 .hist-ticker {
@@ -329,26 +336,66 @@ body {
     color: var(--text);
 }
 
+.hist-remove {
+    width: 24px;
+    height: 24px;
+    border-radius: 4px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: all 0.15s;
+    flex-shrink: 0;
+}
+
+.hist-remove svg {
+    width: 12px;
+    height: 12px;
+}
+
+.history-item:hover .hist-remove {
+    opacity: 1;
+}
+
+.hist-remove:hover {
+    background: var(--red-bg);
+    color: var(--red);
+}
+
 .sidebar__footer {
     margin-top: auto;
     padding-top: 12px;
+    border-top: 1px solid var(--border);
 }
 
-.tech-tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 4px;
-}
-
-.tt {
-    padding: 2px 8px;
-    border-radius: 3px;
-    font-size: 0.62rem;
-    font-family: var(--mono);
-    font-weight: 600;
-    background: var(--bg-4);
+.sidebar-copy {
+    font-size: 0.68rem;
     color: var(--text-muted);
-    border: 1px solid var(--border);
+    font-weight: 600;
+    margin-bottom: 6px;
+}
+
+.sidebar-contact {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.72rem;
+    color: var(--cyan);
+    text-decoration: none;
+    transition: color 0.2s;
+    font-weight: 500;
+}
+
+.sidebar-contact:hover {
+    color: var(--green);
+}
+
+.sidebar-contact svg {
+    flex-shrink: 0;
 }
 
 /* ── Main Area ──────────────────────────────────────────────────────── */
@@ -1217,6 +1264,51 @@ body {
     font-size: 0.85rem;
 }
 
+/* ── Panel Head Icon ────────────────────────────────────────────────── */
+.ph-icon {
+    display: flex;
+    align-items: center;
+    color: var(--text-muted);
+    flex-shrink: 0;
+    margin-right: 6px;
+}
+
+.ph-icon svg {
+    stroke: var(--green);
+}
+
+/* ── Chart Period Buttons ──────────────────────────────────────────── */
+.chart-periods {
+    display: flex;
+    gap: 2px;
+    margin-left: auto;
+}
+
+.period-btn {
+    padding: 3px 10px;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-muted);
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    font-weight: 700;
+    cursor: pointer;
+    letter-spacing: 0.04em;
+    transition: all 0.15s;
+}
+
+.period-btn:hover {
+    border-color: var(--cyan);
+    color: var(--cyan);
+}
+
+.period-btn.active {
+    background: var(--green-bg);
+    border-color: var(--green);
+    color: var(--green);
+}
+
 /* ── Footer ─────────────────────────────────────────────────────────── */
 .main-footer {
     padding: 12px 24px;
@@ -1224,15 +1316,44 @@ body {
     background: var(--bg-2);
     display: flex;
     align-items: center;
-    justify-content: center;
-    gap: 6px;
+    justify-content: space-between;
     flex-wrap: wrap;
+    gap: 8px;
     font-size: 0.72rem;
     color: var(--text-muted);
 }
 
-.mf-sep {
-    color: var(--border);
+.footer-left {
+    display: flex;
+    align-items: center;
+}
+
+.footer-copy {
+    font-weight: 600;
+}
+
+.footer-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.footer-link {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    color: var(--cyan);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s;
+}
+
+.footer-link:hover {
+    color: var(--green);
+}
+
+.footer-link svg {
+    flex-shrink: 0;
 }
 
 .mf-warn {

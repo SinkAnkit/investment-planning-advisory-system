@@ -5,13 +5,14 @@ from fastapi import FastAPI, Request, Query
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from data import init_db, get_all_stocks, get_stock, get_news, get_latest_insight, get_stock_prices
+from data import init_db, get_all_stocks, get_stock, get_news, get_latest_insight, get_stock_prices, delete_stock
+from data.stock_fetcher import fetch_price_history
 from pipeline import run_pipeline, run_batch_pipeline, get_cached_analysis
 
 # ── App setup ───────────────────────────────────────────────────────────
 app = FastAPI(
     title="Investment Planning Advisory System",
-    description="GenAI-based real-time stock analysis with NLP sentiment and AI-powered investment insights",
+    description="Real-time stock analysis with sentiment analysis and AI-powered investment insights",
     version="1.0.0",
 )
 
@@ -100,10 +101,23 @@ async def get_stock_insights(ticker: str):
 
 
 @app.get("/api/prices/{ticker}")
-async def get_prices(ticker: str, limit: int = 30):
+async def get_prices(ticker: str, period: str = Query("1mo", description="Price period: 1mo, 3mo, 1y")):
     """Get historical price data for charting."""
-    prices = get_stock_prices(ticker.upper(), limit=limit)
-    return JSONResponse(content={"ticker": ticker.upper(), "prices": prices})
+    if period in ("3mo", "1y"):
+        prices = fetch_price_history(ticker.upper(), period=period)
+        return JSONResponse(content={"ticker": ticker.upper(), "prices": prices, "period": period})
+    prices = get_stock_prices(ticker.upper(), limit=30)
+    return JSONResponse(content={"ticker": ticker.upper(), "prices": prices, "period": "1mo"})
+
+
+@app.delete("/api/stock/{ticker}")
+async def remove_stock(ticker: str):
+    """Remove a stock from analysis history."""
+    try:
+        delete_stock(ticker.upper())
+        return JSONResponse(content={"status": "ok", "deleted": ticker.upper()})
+    except Exception as e:
+        return JSONResponse(content={"status": "error", "error": str(e)}, status_code=500)
 
 
 @app.get("/api/health")

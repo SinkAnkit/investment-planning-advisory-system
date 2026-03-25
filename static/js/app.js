@@ -4,6 +4,7 @@
 
 let priceChart = null;
 let sentimentChart = null;
+let currentTicker = '';
 
 /* ── Helpers ────────────────────────────────────────────────────────── */
 
@@ -44,15 +45,11 @@ function showLoading() {
     document.getElementById('mainContent').style.display = 'none';
     document.getElementById('welcomeSection').style.display = 'none';
 
-    // Pipeline sidebar
     for (let i = 1; i <= 5; i++) {
         const el = document.getElementById('pipe' + i);
-        if (el) { el.classList.remove('active', 'done'); }
-    }
-    // Loading terminal lines
-    for (let i = 1; i <= 5; i++) {
-        const el = document.getElementById('ls' + i);
-        if (el) { el.classList.remove('active', 'done'); }
+        if (el) el.classList.remove('active', 'done');
+        const ls = document.getElementById('ls' + i);
+        if (ls) ls.classList.remove('active', 'done');
     }
 
     let step = 1;
@@ -105,6 +102,7 @@ function quickAnalyze(ticker) {
 }
 
 async function runAnalysis(ticker) {
+    currentTicker = ticker;
     showLoading();
     try {
         const res = await fetch(`/api/analyze/${ticker}`);
@@ -116,11 +114,51 @@ async function runAnalysis(ticker) {
         }
         populate(data);
         hideLoading();
-        fetchPriceChart(ticker);
+        fetchPriceChart(ticker, '1mo');
+        // Reset period buttons
+        document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+        document.querySelector('.period-btn[data-period="1mo"]').classList.add('active');
     } catch (err) {
         console.error(err);
         alert('Analysis failed. Check console.');
         hideLoading();
+    }
+}
+
+/* ── Chart Period Switch ────────────────────────────────────────────── */
+
+function switchPeriod(period, btn) {
+    if (!currentTicker) return;
+    document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    fetchPriceChart(currentTicker, period);
+}
+
+/* ── History Removal ────────────────────────────────────────────────── */
+
+async function removeStock(ticker) {
+    try {
+        const res = await fetch(`/api/stock/${ticker}`, { method: 'DELETE' });
+        const data = await res.json();
+        if (data.status === 'ok') {
+            const el = document.getElementById('hist-' + ticker);
+            if (el) {
+                el.style.transition = 'opacity 0.3s, transform 0.3s';
+                el.style.opacity = '0';
+                el.style.transform = 'translateX(-10px)';
+                setTimeout(() => el.remove(), 300);
+            }
+            // Check if history section is empty
+            setTimeout(() => {
+                const list = document.getElementById('historyList');
+                if (list && list.children.length === 0) {
+                    const section = document.getElementById('historySection');
+                    if (section) section.remove();
+                }
+            }, 350);
+        }
+    } catch (err) {
+        console.error('Failed to remove stock:', err);
     }
 }
 
@@ -310,9 +348,9 @@ function buildNews(data) {
 
 /* ── Price Chart ────────────────────────────────────────────────────── */
 
-async function fetchPriceChart(ticker) {
+async function fetchPriceChart(ticker, period) {
     try {
-        const res = await fetch(`/api/prices/${ticker}`);
+        const res = await fetch(`/api/prices/${ticker}?period=${period || '1mo'}`);
         const data = await res.json();
         drawPriceChart(data.prices || []);
     } catch (err) { console.error(err); }

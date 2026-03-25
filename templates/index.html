@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>IPAS — Investment Planning Advisory System</title>
     <meta name="description"
-        content="AI-powered real-time stock analysis with NLP sentiment analysis and GenAI investment insights">
+        content="Real-time stock analysis with sentiment analysis and AI-powered investment insights">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link
         href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap"
@@ -40,7 +40,7 @@
             <span class="ticker-sep">│</span>
             <span class="ticker-item">NASDAQ 18,340.20 <small>▲ +0.68%</small></span>
             <span class="ticker-sep">│</span>
-            <!-- Duplicate for seamless scroll -->
+            <!-- duplicate for seamless scroll -->
             <span class="ticker-item up">AAPL $252.80 <small>▲ +0.46%</small></span>
             <span class="ticker-sep">│</span>
             <span class="ticker-item down">MSFT $412.30 <small>▼ -1.23%</small></span>
@@ -101,34 +101,46 @@
             <div class="sidebar__section">
                 <div class="sidebar-label">PIPELINE</div>
                 <div class="pipeline-steps">
-                    <div class="pipe-step" id="pipe1"><span class="pipe-num">01</span> Market Data (API)</div>
+                    <div class="pipe-step" id="pipe1"><span class="pipe-num">01</span> Market Data</div>
                     <div class="pipe-step" id="pipe2"><span class="pipe-num">02</span> News Aggregation</div>
-                    <div class="pipe-step" id="pipe3"><span class="pipe-num">03</span> NLP Sentiment</div>
+                    <div class="pipe-step" id="pipe3"><span class="pipe-num">03</span> Sentiment Analysis</div>
                     <div class="pipe-step" id="pipe4"><span class="pipe-num">04</span> Risk Evaluation</div>
-                    <div class="pipe-step" id="pipe5"><span class="pipe-num">05</span> GenAI Insights</div>
+                    <div class="pipe-step" id="pipe5"><span class="pipe-num">05</span> Insight Generation</div>
                 </div>
             </div>
 
             {% if stocks %}
-            <div class="sidebar__section">
+            <div class="sidebar__section" id="historySection">
                 <div class="sidebar-label">HISTORY</div>
-                <div class="sidebar-history">
+                <div class="sidebar-history" id="historyList">
                     {% for stock in stocks %}
-                    <button class="history-item" onclick="quickAnalyze('{{ stock.ticker }}')">
-                        <span class="hist-ticker">{{ stock.ticker }}</span>
-                        <span class="hist-price">${{ "%.2f"|format(stock.price or 0) }}</span>
-                    </button>
+                    <div class="history-item" id="hist-{{ stock.ticker }}">
+                        <button class="hist-btn" onclick="quickAnalyze('{{ stock.ticker }}')">
+                            <span class="hist-ticker">{{ stock.ticker }}</span>
+                            <span class="hist-price">${{ "%.2f"|format(stock.price or 0) }}</span>
+                        </button>
+                        <button class="hist-remove" onclick="removeStock('{{ stock.ticker }}')"
+                            title="Remove from history">
+                            <svg viewBox="0 0 16 16" fill="none">
+                                <path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.5"
+                                    stroke-linecap="round" />
+                            </svg>
+                        </button>
+                    </div>
                     {% endfor %}
                 </div>
             </div>
             {% endif %}
 
             <div class="sidebar__footer">
-                <div class="sidebar-label">STACK</div>
-                <div class="tech-tags">
-                    <span class="tt">Python</span><span class="tt">SQL</span><span class="tt">NLP</span>
-                    <span class="tt">FastAPI</span><span class="tt">VADER</span><span class="tt">Gemini</span>
-                </div>
+                <div class="sidebar-copy">© 2026 SinkAnt</div>
+                <a href="mailto:ankitsingh92004@gmail.com" class="sidebar-contact">
+                    <svg viewBox="0 0 16 16" fill="none" width="12" height="12">
+                        <rect x="1" y="3" width="14" height="10" rx="2" stroke="currentColor" stroke-width="1.2" />
+                        <path d="M1 5l7 4 7-4" stroke="currentColor" stroke-width="1.2" />
+                    </svg>
+                    Contact / Feedback
+                </a>
             </div>
         </aside>
 
@@ -142,7 +154,7 @@
                         <div class="hero-badge">REAL-TIME ANALYSIS</div>
                         <h1 class="hero-title">Investment Planning<br><span class="hero-accent">Advisory System</span>
                         </h1>
-                        <p class="hero-desc">Automated pipeline that fetches real-time stock data, runs NLP sentiment
+                        <p class="hero-desc">An automated pipeline that fetches real-time stock data, runs sentiment
                             analysis on financial news, evaluates multi-factor risk, and generates AI-powered investment
                             recommendations.</p>
                         <div class="hero-cta">
@@ -150,7 +162,7 @@
                                 Analysis →</button>
                             <div class="cta-stat"><span class="cta-num">5</span> pipeline stages</div>
                             <div class="cta-stat"><span class="cta-num">6</span> risk factors</div>
-                            <div class="cta-stat"><span class="cta-num">40+</span> NLP terms</div>
+                            <div class="cta-stat"><span class="cta-num">40+</span> analysis terms</div>
                         </div>
                     </div>
                     <div class="hero-right">
@@ -159,21 +171,21 @@
                                 <span class="term-dot term-dot--r"></span>
                                 <span class="term-dot term-dot--y"></span>
                                 <span class="term-dot term-dot--g"></span>
-                                <span class="term-title">analysis_pipeline.py</span>
+                                <span class="term-title">analysis_pipeline</span>
                             </div>
                             <div class="terminal-body">
-                                <div class="term-line"><span class="t-green">$</span> <span class="t-dim">python</span>
-                                    analysis_pipeline.py <span class="t-cyan">--ticker AAPL</span></div>
+                                <div class="term-line"><span class="t-green">$</span> <span class="t-dim">run</span>
+                                    analysis_pipeline <span class="t-cyan">--ticker AAPL</span></div>
                                 <div class="term-line t-dim">───────────────────────────────────</div>
-                                <div class="term-line"><span class="t-yellow">[1/5]</span> Fetching market data via
-                                    yfinance API...</div>
-                                <div class="term-line"><span class="t-yellow">[2/5]</span> Aggregating news from RSS
-                                    feeds...</div>
-                                <div class="term-line"><span class="t-yellow">[3/5]</span> Running VADER sentiment
-                                    analysis...</div>
-                                <div class="term-line"><span class="t-yellow">[4/5]</span> Evaluating risk factors (P/E,
-                                    debt, beta)...</div>
-                                <div class="term-line"><span class="t-yellow">[5/5]</span> Generating GenAI investment
+                                <div class="term-line"><span class="t-yellow">[1/5]</span> Fetching real-time market
+                                    data...</div>
+                                <div class="term-line"><span class="t-yellow">[2/5]</span> Aggregating financial news...
+                                </div>
+                                <div class="term-line"><span class="t-yellow">[3/5]</span> Running sentiment analysis...
+                                </div>
+                                <div class="term-line"><span class="t-yellow">[4/5]</span> Evaluating risk factors...
+                                </div>
+                                <div class="term-line"><span class="t-yellow">[5/5]</span> Generating investment
                                     insight...</div>
                                 <div class="term-line t-dim">───────────────────────────────────</div>
                                 <div class="term-line"><span class="t-green">✓</span> Price: <span
@@ -195,57 +207,78 @@
                 <div class="features-grid">
                     <div class="feature-card">
                         <div class="fc-header">
-                            <span class="fc-icon">📡</span>
+                            <span class="fc-icon"><svg viewBox="0 0 24 24" fill="none" width="22" height="22">
+                                    <circle cx="12" cy="12" r="10" stroke="#00d47e" stroke-width="1.5" />
+                                    <path d="M12 6v6l4 2" stroke="#00d47e" stroke-width="1.5" stroke-linecap="round" />
+                                </svg></span>
                             <span class="fc-tag">DATA</span>
                         </div>
                         <h3 class="fc-title">Real-Time Stock Data</h3>
-                        <p class="fc-desc">Prices, P/E ratios, market cap, financial statements, 30-day OHLCV history
-                            via yfinance API</p>
+                        <p class="fc-desc">Prices, P/E ratios, market cap, financial statements, and 30-day OHLCV price
+                            history fetched in real-time</p>
                     </div>
                     <div class="feature-card">
                         <div class="fc-header">
-                            <span class="fc-icon">🧠</span>
+                            <span class="fc-icon"><svg viewBox="0 0 24 24" fill="none" width="22" height="22">
+                                    <path d="M12 3a9 9 0 100 18 9 9 0 000-18z" stroke="#00d47e" stroke-width="1.5" />
+                                    <path d="M12 8v4M8 14h8" stroke="#00d47e" stroke-width="1.5"
+                                        stroke-linecap="round" />
+                                </svg></span>
                             <span class="fc-tag">NLP</span>
                         </div>
                         <h3 class="fc-title">Sentiment Analysis</h3>
-                        <p class="fc-desc">VADER NLP with 40+ finance-specific lexicon terms analyzing Yahoo Finance &
-                            Google News feeds</p>
+                        <p class="fc-desc">Natural language processing with 40+ finance-specific terms analyzing
+                            financial news headlines and articles</p>
                     </div>
                     <div class="feature-card">
                         <div class="fc-header">
-                            <span class="fc-icon">⚖️</span>
+                            <span class="fc-icon"><svg viewBox="0 0 24 24" fill="none" width="22" height="22">
+                                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="#00d47e"
+                                        stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                                </svg></span>
                             <span class="fc-tag">RISK</span>
                         </div>
                         <h3 class="fc-title">Risk Evaluation</h3>
-                        <p class="fc-desc">6-factor weighted scoring: P/E, volatility, debt-to-equity, sentiment,
-                            margins, beta</p>
+                        <p class="fc-desc">6-factor weighted scoring covering valuation, volatility, leverage,
+                            sentiment, margins, and market sensitivity</p>
                     </div>
                     <div class="feature-card">
                         <div class="fc-header">
-                            <span class="fc-icon">🤖</span>
+                            <span class="fc-icon"><svg viewBox="0 0 24 24" fill="none" width="22" height="22">
+                                    <rect x="3" y="3" width="18" height="18" rx="3" stroke="#00d47e"
+                                        stroke-width="1.5" />
+                                    <path d="M8 12h2l2-4 2 8 2-4h2" stroke="#00d47e" stroke-width="1.5"
+                                        stroke-linecap="round" stroke-linejoin="round" />
+                                </svg></span>
                             <span class="fc-tag">AI</span>
                         </div>
-                        <h3 class="fc-title">GenAI Insights</h3>
-                        <p class="fc-desc">Google Gemini generates actionable BUY/SELL/HOLD recommendations with
-                            confidence levels</p>
+                        <h3 class="fc-title">AI Insights</h3>
+                        <p class="fc-desc">AI-generated actionable BUY/SELL/HOLD recommendations with confidence levels
+                            and risk warnings</p>
                     </div>
                     <div class="feature-card">
                         <div class="fc-header">
-                            <span class="fc-icon">🗄️</span>
+                            <span class="fc-icon"><svg viewBox="0 0 24 24" fill="none" width="22" height="22">
+                                    <path d="M4 6h16M4 10h16M4 14h10M4 18h6" stroke="#00d47e" stroke-width="1.5"
+                                        stroke-linecap="round" />
+                                </svg></span>
                             <span class="fc-tag">SQL</span>
                         </div>
-                        <h3 class="fc-title">SQL Data Pipeline</h3>
-                        <p class="fc-desc">SQLite database with 5 normalized tables storing stocks, prices, news,
-                            sentiment, insights</p>
+                        <h3 class="fc-title">Data Pipeline</h3>
+                        <p class="fc-desc">Structured database with 5 normalized tables storing all stocks, prices,
+                            news, sentiment, and insights</p>
                     </div>
                     <div class="feature-card">
                         <div class="fc-header">
-                            <span class="fc-icon">⚡</span>
+                            <span class="fc-icon"><svg viewBox="0 0 24 24" fill="none" width="22" height="22">
+                                    <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" stroke="#00d47e" stroke-width="1.5"
+                                        stroke-linecap="round" stroke-linejoin="round" />
+                                </svg></span>
                             <span class="fc-tag">AUTO</span>
                         </div>
                         <h3 class="fc-title">Automated Pipeline</h3>
-                        <p class="fc-desc">End-to-end orchestrated: fetch → analyze → score → generate insights in one
-                            click</p>
+                        <p class="fc-desc">End-to-end orchestrated: fetch → analyze → score → generate insights — all in
+                            a single click</p>
                     </div>
                 </div>
             </section>
@@ -261,15 +294,15 @@
                     </div>
                     <div class="terminal-body loading-body" id="loadingTerminal">
                         <div class="term-line" id="ls1"><span class="t-yellow">[1/5]</span> <span class="t-dim">Fetching
-                                real-time market data via API...</span></div>
+                                real-time market data...</span></div>
                         <div class="term-line" id="ls2"><span class="t-yellow">[2/5]</span> <span
-                                class="t-dim">Aggregating financial news from RSS feeds...</span></div>
+                                class="t-dim">Aggregating financial news...</span></div>
                         <div class="term-line" id="ls3"><span class="t-yellow">[3/5]</span> <span class="t-dim">Running
-                                NLP sentiment analysis (VADER)...</span></div>
+                                sentiment analysis...</span></div>
                         <div class="term-line" id="ls4"><span class="t-yellow">[4/5]</span> <span
                                 class="t-dim">Evaluating risk factors...</span></div>
                         <div class="term-line" id="ls5"><span class="t-yellow">[5/5]</span> <span
-                                class="t-dim">Generating AI-powered insights...</span></div>
+                                class="t-dim">Generating investment insights...</span></div>
                     </div>
                 </div>
             </div>
@@ -312,13 +345,17 @@
                     <!-- Panel: Recommendation -->
                     <div class="panel panel--rec">
                         <div class="panel-head">
-                            <span class="ph-title">AI RECOMMENDATION</span>
+                            <span class="ph-icon"><svg viewBox="0 0 18 18" fill="none" width="14" height="14">
+                                    <path d="M9 1l2.5 5 5.5.8-4 3.9.9 5.3L9 13.5 4.1 16l.9-5.3-4-3.9L6.5 6z"
+                                        stroke="currentColor" stroke-width="1.3" fill="none" />
+                                </svg></span>
+                            <span class="ph-title">RECOMMENDATION</span>
                             <span class="ph-badge" id="confidenceBadge">HIGH</span>
                         </div>
                         <div class="rec-display">
                             <div class="rec-signal" id="recLabel">HOLD</div>
                         </div>
-                        <p class="rec-summary" id="recSummary">Run analysis to see AI recommendation...</p>
+                        <p class="rec-summary" id="recSummary">Run analysis to see recommendation...</p>
                         <div id="recReasons"></div>
                         <div id="recWarnings"></div>
                     </div>
@@ -326,7 +363,19 @@
                     <!-- Panel: Price Chart -->
                     <div class="panel panel--chart">
                         <div class="panel-head">
-                            <span class="ph-title">PRICE HISTORY (30D)</span>
+                            <span class="ph-icon"><svg viewBox="0 0 18 18" fill="none" width="14" height="14">
+                                    <polyline points="1,14 5,8 9,11 13,4 17,7" stroke="currentColor" stroke-width="1.3"
+                                        fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                                </svg></span>
+                            <span class="ph-title">PRICE HISTORY</span>
+                            <div class="chart-periods">
+                                <button class="period-btn active" data-period="1mo"
+                                    onclick="switchPeriod('1mo', this)">30D</button>
+                                <button class="period-btn" data-period="3mo"
+                                    onclick="switchPeriod('3mo', this)">3M</button>
+                                <button class="period-btn" data-period="1y"
+                                    onclick="switchPeriod('1y', this)">1Y</button>
+                            </div>
                         </div>
                         <div class="chart-wrap"><canvas id="priceChart"></canvas></div>
                     </div>
@@ -334,7 +383,12 @@
                     <!-- Panel: Sentiment -->
                     <div class="panel panel--sentiment">
                         <div class="panel-head">
-                            <span class="ph-title">NLP SENTIMENT</span>
+                            <span class="ph-icon"><svg viewBox="0 0 18 18" fill="none" width="14" height="14">
+                                    <path d="M9 1v16M1 9h16" stroke="currentColor" stroke-width="1.3"
+                                        stroke-linecap="round" />
+                                    <circle cx="9" cy="9" r="7" stroke="currentColor" stroke-width="1.3" />
+                                </svg></span>
+                            <span class="ph-title">SENTIMENT ANALYSIS</span>
                             <span class="ph-badge" id="sentimentLabel">NEUTRAL</span>
                         </div>
                         <div class="sent-hero">
@@ -354,6 +408,12 @@
                     <!-- Panel: Risk -->
                     <div class="panel panel--risk">
                         <div class="panel-head">
+                            <span class="ph-icon"><svg viewBox="0 0 18 18" fill="none" width="14" height="14">
+                                    <path d="M9 2L1 16h16L9 2z" stroke="currentColor" stroke-width="1.3"
+                                        stroke-linejoin="round" />
+                                    <path d="M9 7v4M9 13v1" stroke="currentColor" stroke-width="1.3"
+                                        stroke-linecap="round" />
+                                </svg></span>
                             <span class="ph-title">RISK ASSESSMENT</span>
                             <span class="ph-badge" id="riskBadge">MEDIUM</span>
                         </div>
@@ -373,7 +433,15 @@
 
                     <!-- Panel: Financials -->
                     <div class="panel panel--fin">
-                        <div class="panel-head"><span class="ph-title">FINANCIAL STATEMENTS</span></div>
+                        <div class="panel-head">
+                            <span class="ph-icon"><svg viewBox="0 0 18 18" fill="none" width="14" height="14">
+                                    <rect x="2" y="2" width="14" height="14" rx="2" stroke="currentColor"
+                                        stroke-width="1.3" />
+                                    <path d="M6 6v6M9 8v4M12 5v7" stroke="currentColor" stroke-width="1.3"
+                                        stroke-linecap="round" />
+                                </svg></span>
+                            <span class="ph-title">FINANCIAL STATEMENTS</span>
+                        </div>
                         <div class="fin-grid">
                             <div class="fg-row"><span class="fg-k">Revenue</span><span class="fg-v"
                                     id="finRevenue">—</span></div>
@@ -392,7 +460,15 @@
 
                     <!-- Panel: News -->
                     <div class="panel panel--news">
-                        <div class="panel-head"><span class="ph-title">NEWS & SENTIMENT</span></div>
+                        <div class="panel-head">
+                            <span class="ph-icon"><svg viewBox="0 0 18 18" fill="none" width="14" height="14">
+                                    <rect x="2" y="3" width="14" height="12" rx="2" stroke="currentColor"
+                                        stroke-width="1.3" />
+                                    <path d="M5 7h8M5 10h5" stroke="currentColor" stroke-width="1.3"
+                                        stroke-linecap="round" />
+                                </svg></span>
+                            <span class="ph-title">NEWS & SENTIMENT</span>
+                        </div>
                         <div class="news-feed" id="newsFeed">
                             <div class="news-empty">Analyze a stock to see news</div>
                         </div>
@@ -402,11 +478,19 @@
 
             <!-- Footer -->
             <footer class="main-footer">
-                <span>Investment Planning Advisory System</span>
-                <span class="mf-sep">•</span>
-                <span>Python | SQL | NLP | GenAI</span>
-                <span class="mf-sep">•</span>
-                <span class="mf-warn">Educational purposes only. Not financial advice.</span>
+                <div class="footer-left">
+                    <span class="footer-copy">© 2026 SinkAnt. All rights reserved.</span>
+                </div>
+                <div class="footer-right">
+                    <a href="mailto:ankitsingh92004@gmail.com" class="footer-link">
+                        <svg viewBox="0 0 16 16" fill="none" width="12" height="12">
+                            <rect x="1" y="3" width="14" height="10" rx="2" stroke="currentColor" stroke-width="1.2" />
+                            <path d="M1 5l7 4 7-4" stroke="currentColor" stroke-width="1.2" />
+                        </svg>
+                        Contact / Feedback
+                    </a>
+                    <span class="mf-warn">Educational purposes only. Not financial advice.</span>
+                </div>
             </footer>
         </div>
     </div>
