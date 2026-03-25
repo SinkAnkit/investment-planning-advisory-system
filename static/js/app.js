@@ -101,7 +101,7 @@ function quickAnalyze(ticker) {
     runAnalysis(ticker);
 }
 
-async function runAnalysis(ticker) {
+async function runAnalysis(ticker, skipPushState = false) {
     currentTicker = ticker;
     showLoading();
     try {
@@ -110,6 +110,7 @@ async function runAnalysis(ticker) {
         if (data.status === 'error') {
             alert(`Error: ${data.error}`);
             hideLoading();
+            showHome();
             return;
         }
         populate(data);
@@ -118,10 +119,16 @@ async function runAnalysis(ticker) {
         // Reset period buttons
         document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
         document.querySelector('.period-btn[data-period="1mo"]').classList.add('active');
+        // Update URL state
+        if (!skipPushState) {
+            history.pushState({ ticker }, `IPAS — ${ticker}`, `#/analyze/${ticker}`);
+        }
+        document.title = `IPAS — ${ticker} Analysis`;
     } catch (err) {
         console.error(err);
         alert('Analysis failed. Check console.');
         hideLoading();
+        showHome();
     }
 }
 
@@ -404,3 +411,39 @@ function drawPriceChart(prices) {
 
 document.getElementById('tickerInput').addEventListener('keydown', e => { if (e.key === 'Enter') analyzeStock(); });
 document.getElementById('tickerInput').addEventListener('input', e => { e.target.value = e.target.value.toUpperCase(); });
+
+/* ── Routing ────────────────────────────────────────────────────────── */
+
+function showHome() {
+    document.getElementById('welcomeSection').style.display = '';
+    document.getElementById('mainContent').style.display = 'none';
+    document.getElementById('loadingOverlay').style.display = 'none';
+    currentTicker = '';
+    document.title = 'IPAS — Investment Planning Advisory System';
+}
+
+function getTickerFromHash() {
+    const hash = window.location.hash;
+    const match = hash.match(/^#\/analyze\/([A-Z0-9.\-]+)$/i);
+    return match ? match[1].toUpperCase() : null;
+}
+
+// Handle browser back/forward button
+window.addEventListener('popstate', (e) => {
+    const ticker = getTickerFromHash();
+    if (ticker) {
+        document.getElementById('tickerInput').value = ticker;
+        runAnalysis(ticker, true);
+    } else {
+        showHome();
+    }
+});
+
+// Restore state on page load/refresh
+window.addEventListener('DOMContentLoaded', () => {
+    const ticker = getTickerFromHash();
+    if (ticker) {
+        document.getElementById('tickerInput').value = ticker;
+        runAnalysis(ticker, true);
+    }
+});
