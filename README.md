@@ -1,4 +1,4 @@
-# 📊 Investment Planning Advisory System
+# Investment Planning Advisory System
 
 **GenAI-Based Real-Time Investment Advisory System | Python, SQL, NLP**
 
@@ -12,22 +12,22 @@ A full-stack AI-powered investment advisory system that analyzes real-time stock
 
 ---
 
-## ✨ Features
+## Features
 
 | Feature | Description |
 |---|---|
-| 📈 **Real-Time Stock Data** | Fetches live prices, P/E ratios, market cap, financial statements via `yfinance` API |
-| 📰 **Financial News Aggregation** | Collects news from Yahoo Finance & Google News RSS feeds |
-| 🧠 **NLP Sentiment Analysis** | VADER-based sentiment scoring with 40+ finance-specific lexicon terms |
-| ⚠️ **Multi-Factor Risk Evaluation** | 6-factor weighted risk scoring (P/E, volatility, debt, sentiment, margins, beta) |
-| 🤖 **GenAI Investment Insights** | Google Gemini-powered actionable recommendations with confidence levels |
-| 🎨 **Premium Dark Dashboard** | Glassmorphism UI with Chart.js visualizations and real-time data rendering |
-| 🗄️ **SQL Data Pipeline** | SQLite database with structured schema for stocks, prices, news, sentiment, insights |
-| ⚡ **Automated Pipeline** | End-to-end automated analysis: fetch → analyze → score → generate insights |
+| **Real-Time Stock Data** | Fetches live prices, P/E ratios, market cap, financial statements via `yfinance` API |
+| **Financial News Aggregation** | Collects news from Yahoo Finance & Google News RSS feeds |
+| **NLP Sentiment Analysis** | VADER-based sentiment scoring with 40+ finance-specific lexicon terms |
+| **Multi-Factor Risk Evaluation** | 6-factor weighted risk scoring (P/E, volatility, debt, sentiment, margins, beta) |
+| **GenAI Investment Insights** | Google Gemini-powered actionable recommendations with confidence levels |
+| **Premium Dark Dashboard** | Terminal-style UI with Chart.js visualizations and real-time data rendering |
+| **SQL Data Pipeline** | SQLite database with structured schema for stocks, prices, news, sentiment, insights |
+| **Automated Pipeline** | End-to-end automated analysis: fetch → analyze → score → generate insights |
 
 ---
 
-## 🏗️ Architecture
+## Architecture
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
@@ -68,7 +68,7 @@ A full-stack AI-powered investment advisory system that analyzes real-time stock
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 | Layer | Technology |
 |---|---|
@@ -84,12 +84,12 @@ A full-stack AI-powered investment advisory system that analyzes real-time stock
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/investment-planning-advisory-system.git
+git clone https://github.com/SinkAnkit/investment-planning-advisory-system.git
 cd investment-planning-advisory-system
 ```
 
@@ -129,7 +129,7 @@ Navigate to **http://localhost:8000** in your browser.
 
 ---
 
-## 📡 API Endpoints
+## API Endpoints
 
 | Method | Endpoint | Description |
 |---|---|---|
@@ -145,7 +145,7 @@ Navigate to **http://localhost:8000** in your browser.
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 investment-planning-advisory-system/
@@ -172,7 +172,7 @@ investment-planning-advisory-system/
 
 ---
 
-## 🔬 How It Works
+## How It Works
 
 ### 1. Data Collection
 - **Stock Data:** Uses `yfinance` to fetch real-time prices, P/E ratios, market cap, revenue, profit margins, debt-to-equity, and 30-day price history
@@ -201,7 +201,7 @@ investment-planning-advisory-system/
 
 ---
 
-## 📊 Database Schema (SQL)
+## Database Schema (SQL)
 
 ```sql
 -- 5 normalized tables
@@ -214,12 +214,12 @@ investment_insights -- Generated AI recommendations
 
 ---
 
-## ⚠️ Disclaimer
+## Disclaimer
 
 This project is for **educational and research purposes only**. It is not financial advice. Always conduct your own due diligence before making investment decisions.
 
 ---
 
-## 📄 License
+## License
 
 MIT License — see [LICENSE](LICENSE) for details.
