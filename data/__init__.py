@@ -198,7 +198,7 @@ def get_stock(ticker: str) -> dict | None:
 
 def get_all_stocks() -> list[dict]:
     conn = get_connection()
-    rows = conn.execute("SELECT * FROM stocks ORDER BY ticker").fetchall()
+    rows = conn.execute("SELECT * FROM stocks ORDER BY updated_at DESC").fetchall()
     conn.close()
     return [dict(r) for r in rows]
 

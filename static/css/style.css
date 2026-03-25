@@ -297,6 +297,17 @@ body {
     display: flex;
     flex-direction: column;
     gap: 3px;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.sidebar-history::-webkit-scrollbar {
+    width: 3px;
+}
+
+.sidebar-history::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 2px;
 }
 
 .history-item {
