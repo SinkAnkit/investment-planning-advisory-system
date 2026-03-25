@@ -2,6 +2,8 @@
 
 **GenAI-Based Real-Time Investment Advisory System | Python, SQL, NLP**
 
+**[Live Demo →](https://investment-planning-advisory-system.onrender.com/)**
+
 A full-stack AI-powered investment advisory system that analyzes real-time stock market data, performs NLP sentiment analysis on financial news, evaluates multi-factor risk, and generates actionable investment insights using GenAI.
 
 ![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white)
@@ -9,6 +11,7 @@ A full-stack AI-powered investment advisory system that analyzes real-time stock
 ![SQLite](https://img.shields.io/badge/SQLite-003B57?style=for-the-badge&logo=sqlite&logoColor=white)
 ![NLP](https://img.shields.io/badge/NLP-VADER-FF6F00?style=for-the-badge)
 ![Gemini](https://img.shields.io/badge/Gemini_AI-4285F4?style=for-the-badge&logo=google&logoColor=white)
+![Render](https://img.shields.io/badge/Deployed_on-Render-46E3B7?style=for-the-badge&logo=render&logoColor=white)
 
 ---
 
@@ -140,7 +143,8 @@ Navigate to **http://localhost:8000** in your browser.
 | `GET` | `/api/stock/{ticker}` | Get cached stock details |
 | `GET` | `/api/news/{ticker}` | Get news + sentiment for a stock |
 | `GET` | `/api/insights/{ticker}` | Get latest AI investment insight |
-| `GET` | `/api/prices/{ticker}` | Get 30-day price history |
+| `GET` | `/api/prices/{ticker}?period=1mo` | Get price history (1mo, 3mo, 1y) |
+| `DELETE` | `/api/stock/{ticker}` | Remove a stock from history |
 | `GET` | `/api/health` | Health check |
 
 ---
