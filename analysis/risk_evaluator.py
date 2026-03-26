@@ -62,7 +62,7 @@ def evaluate_risk(stock_data: dict, avg_sentiment: float) -> dict:
     # ── Debt-to-Equity ──────────────────────────────────────────────────
     dte = stock_data.get("debt_to_equity")
     if dte is not None:
-        dte_val = dte / 100 if dte > 10 else dte  # yfinance sometimes returns as %
+        dte_val = dte / 100 if dte > 10 else dte  # Finnhub sometimes returns as %
         if dte_val > RISK_THRESHOLDS["debt_equity_high"]:
             score = min(1.0, dte_val / 4)
             factors.append({"name": "High Debt", "score": score,

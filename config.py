@@ -9,6 +9,7 @@ BASE_DIR = Path(__file__).resolve().parent
 DB_PATH = BASE_DIR / "investadvisor.db"
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
+FINNHUB_API_KEY = os.getenv("FINNHUB_API_KEY", "")
 
 # Default tickers to monitor
 DEFAULT_TICKERS = ["AAPL", "GOOGL", "MSFT", "AMZN", "TSLA", "NVDA", "META", "JPM", "V", "JNJ"]
