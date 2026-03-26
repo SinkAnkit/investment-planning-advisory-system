@@ -799,6 +799,38 @@ body {
     color: var(--green);
 }
 
+.currency-toggle {
+    display: flex;
+    background: var(--bg-3);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 2px;
+    margin-left: 16px;
+}
+
+.curr-btn {
+    background: transparent;
+    border: none;
+    padding: 4px 10px;
+    color: var(--text-muted);
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    font-weight: 700;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.curr-btn:hover {
+    color: var(--text-bright);
+}
+
+.curr-btn.active {
+    background: var(--bg-4);
+    color: var(--cyan);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
 .sb-change.down {
     color: var(--red);
 }

@@ -5,17 +5,27 @@
 let priceChart = null;
 let sentimentChart = null;
 let currentTicker = '';
+let currentCurrency = 'USD';
+let currentStockData = null;
+const EXCHANGE_RATE_INR = 83.50;
 
 /* ── Helpers ────────────────────────────────────────────────────────── */
 
 function fmt$(val) {
     if (val == null || val === 'N/A') return '—';
-    const n = Number(val);
+    let n = Number(val);
     if (isNaN(n)) return '—';
-    if (Math.abs(n) >= 1e12) return '$' + (n / 1e12).toFixed(2) + 'T';
-    if (Math.abs(n) >= 1e9) return '$' + (n / 1e9).toFixed(2) + 'B';
-    if (Math.abs(n) >= 1e6) return '$' + (n / 1e6).toFixed(1) + 'M';
-    return '$' + n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+    let prefix = '$';
+    if (currentCurrency === 'INR') {
+        n = n * EXCHANGE_RATE_INR;
+        prefix = '₹';
+    }
+
+    if (Math.abs(n) >= 1e12) return prefix + (n / 1e12).toFixed(2) + 'T';
+    if (Math.abs(n) >= 1e9) return prefix + (n / 1e9).toFixed(2) + 'B';
+    if (Math.abs(n) >= 1e6) return prefix + (n / 1e6).toFixed(1) + 'M';
+    return prefix + n.toLocaleString(currentCurrency === 'INR' ? 'en-IN' : 'en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
 function fmtN(val) {
@@ -101,6 +111,20 @@ function quickAnalyze(ticker) {
     runAnalysis(ticker);
 }
 
+function setCurrency(curr) {
+    if (currentCurrency === curr) return;
+    currentCurrency = curr;
+    document.getElementById('btnUSD').classList.toggle('active', curr === 'USD');
+    document.getElementById('btnINR').classList.toggle('active', curr === 'INR');
+
+    if (currentStockData) {
+        populate(currentStockData);
+        const activePeriodBtn = document.querySelector('.period-btn.active');
+        const period = activePeriodBtn ? activePeriodBtn.dataset.period : '1mo';
+        fetchPriceChart(currentTicker, period);
+    }
+}
+
 async function runAnalysis(ticker, skipPushState = false) {
     currentTicker = ticker;
     showLoading();
@@ -113,6 +137,7 @@ async function runAnalysis(ticker, skipPushState = false) {
             showHome();
             return;
         }
+        currentStockData = data;
         populate(data);
         hideLoading();
         fetchPriceChart(ticker, '1mo');
@@ -183,12 +208,15 @@ function populate(data) {
     document.getElementById('stockSector').textContent = s.sector || '';
 
     // Price
-    document.getElementById('stockPrice').textContent = s.price ? `$${Number(s.price).toFixed(2)}` : '—';
+    const mult = currentCurrency === 'INR' ? EXCHANGE_RATE_INR : 1;
+    const prefix = currentCurrency === 'INR' ? '₹' : '$';
+
+    document.getElementById('stockPrice').textContent = s.price ? `${prefix}${(Number(s.price) * mult).toFixed(2)}` : '—';
     const changeEl = document.getElementById('stockChange');
     if (s.price && s.previous_close) {
         const pct = ((s.price - s.previous_close) / s.previous_close * 100);
-        const abs = Math.abs(s.price - s.previous_close);
-        changeEl.textContent = `${pct >= 0 ? '▲' : '▼'} $${abs.toFixed(2)} (${pct >= 0 ? '+' : ''}${pct.toFixed(2)}%)`;
+        const abs = Math.abs(s.price - s.previous_close) * mult;
+        changeEl.textContent = `${pct >= 0 ? '▲' : '▼'} ${prefix}${abs.toFixed(2)} (${pct >= 0 ? '+' : ''}${pct.toFixed(2)}%)`;
         changeEl.className = `sb-change ${pct >= 0 ? 'up' : 'down'}`;
     } else {
         changeEl.textContent = '—';
@@ -198,8 +226,8 @@ function populate(data) {
     // Metrics strip
     document.getElementById('metricMarketCap').textContent = fmt$(s.market_cap);
     document.getElementById('metricPE').textContent = fmtD(s.pe_ratio, 1);
-    document.getElementById('metric52High').textContent = s.week_52_high ? `$${Number(s.week_52_high).toFixed(2)}` : '—';
-    document.getElementById('metric52Low').textContent = s.week_52_low ? `$${Number(s.week_52_low).toFixed(2)}` : '—';
+    document.getElementById('metric52High').textContent = s.week_52_high ? `${prefix}${(Number(s.week_52_high) * mult).toFixed(2)}` : '—';
+    document.getElementById('metric52Low').textContent = s.week_52_low ? `${prefix}${(Number(s.week_52_low) * mult).toFixed(2)}` : '—';
     document.getElementById('metricVolume').textContent = fmtN(s.volume);
     document.getElementById('metricBeta').textContent = fmtD(s.beta);
 
@@ -369,7 +397,11 @@ function drawPriceChart(prices) {
 
     const sorted = [...prices].reverse();
     const labels = sorted.map(p => new Date(p.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
-    const closes = sorted.map(p => p.close);
+
+    const mult = currentCurrency === 'INR' ? EXCHANGE_RATE_INR : 1;
+    const prefix = currentCurrency === 'INR' ? '₹' : '$';
+    const closes = sorted.map(p => p.close * mult);
+
     const isUp = closes.length >= 2 && closes[closes.length - 1] >= closes[0];
     const color = isUp ? '#00d47e' : '#f85149';
     const fill = isUp ? 'rgba(0,212,126,0.06)' : 'rgba(248,81,73,0.06)';
@@ -396,12 +428,12 @@ function drawPriceChart(prices) {
                     titleFont: { family: "'Space Grotesk'", size: 11 },
                     bodyFont: { family: "'IBM Plex Mono'", size: 13, weight: '700' },
                     padding: 10, cornerRadius: 6, displayColors: false,
-                    callbacks: { label: c => `  $${c.raw.toFixed(2)}` }
+                    callbacks: { label: c => `  ${prefix}${c.raw.toFixed(2)}` }
                 }
             },
             scales: {
                 x: { grid: { display: false }, ticks: { color: '#6e7681', font: { size: 10, family: "'IBM Plex Mono'" }, maxTicksLimit: 7 } },
-                y: { grid: { color: 'rgba(48,54,61,0.4)' }, ticks: { color: '#6e7681', font: { size: 10, family: "'IBM Plex Mono'" }, callback: v => '$' + v.toFixed(0) } }
+                y: { grid: { color: 'rgba(48,54,61,0.4)' }, ticks: { color: '#6e7681', font: { size: 10, family: "'IBM Plex Mono'" }, callback: v => prefix + v.toFixed(0) } }
             }
         }
     });
