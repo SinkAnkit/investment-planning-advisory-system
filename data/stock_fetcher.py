@@ -13,6 +13,12 @@ def _fh_get(endpoint: str, params: dict | None = None) -> dict | list:
     params = params or {}
     params["token"] = FINNHUB_API_KEY
     resp = requests.get(f"{_BASE_URL}{endpoint}", params=params, timeout=15)
+    
+    # Finnhub's free tier restricts /stock/candle 
+    if resp.status_code == 403 and "candle" in endpoint:
+        print("[FINNHUB] 403 Forbidden on candle data. Endpoint requires premium subscription.")
+        return {"s": "no_data"}
+        
     resp.raise_for_status()
     return resp.json()
 
