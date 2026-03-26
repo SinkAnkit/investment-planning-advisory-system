@@ -98,8 +98,50 @@ def fetch_stock_data(ticker: str) -> dict:
     return stock_data
 
 
+def _fetch_yahoo_candles(ticker: str, period: str = "1mo") -> list[dict]:
+    """Fallback to fetch basic daily OHLCV from Yahoo Finance public API."""
+    url = f"https://query2.finance.yahoo.com/v8/finance/chart/{ticker}?range={period}&interval=1d"
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
+    }
+    
+    try:
+        resp = requests.get(url, headers=headers, timeout=10)
+        resp.raise_for_status()
+        data = resp.json()
+        
+        result = data.get("chart", {}).get("result", [])
+        if not result:
+            return []
+            
+        timestamps = result[0].get("timestamp", [])
+        indicators = result[0].get("indicators", {}).get("quote", [{}])[0]
+        
+        closes = indicators.get("close", [])
+        opens = indicators.get("open", [])
+        highs = indicators.get("high", [])
+        lows = indicators.get("low", [])
+        volumes = indicators.get("volume", [])
+        
+        rows = []
+        for i in range(len(timestamps)):
+            if closes[i] is None:
+                continue
+            rows.append({
+                "date": datetime.utcfromtimestamp(timestamps[i]).strftime("%Y-%m-%d"),
+                "open": round(opens[i], 2),
+                "high": round(highs[i], 2),
+                "low": round(lows[i], 2),
+                "close": round(closes[i], 2),
+                "volume": int(volumes[i]) if volumes[i] else 0,
+            })
+        return rows
+    except Exception as e:
+        print(f"[YAHOO FALLBACK FAILED] {e}")
+        return []
+
 def _fetch_candles(ticker: str, days: int = 30) -> list[dict]:
-    """Fetch daily OHLCV candles from Finnhub."""
+    """Fetch daily OHLCV candles from Finnhub, with fallback to Yahoo."""
     now = datetime.utcnow()
     to_ts = int(now.timestamp())
     from_ts = int((now - timedelta(days=days)).timestamp())
@@ -112,7 +154,12 @@ def _fetch_candles(ticker: str, days: int = 30) -> list[dict]:
     })
 
     if data.get("s") != "ok":
-        return []
+        # Fallback to Yahoo if Finnhub blocks us (403 or no data)
+        print(f"[CANDLE FALLBACK] Finnhub blocked/failed. Attempting Yahoo Finance for {ticker}...")
+        period = "1mo"
+        if days > 40: period = "3mo"
+        if days > 100: period = "1y"
+        return _fetch_yahoo_candles(ticker, period)
 
     rows = []
     for i in range(len(data.get("t", []))):
@@ -129,6 +176,5 @@ def _fetch_candles(ticker: str, days: int = 30) -> list[dict]:
 
 def fetch_price_history(ticker: str, period: str = "1mo") -> list[dict]:
     """Fetch price history for a given period (1mo, 3mo, 1y)."""
-    days_map = {"1mo": 30, "3mo": 90, "1y": 365}
-    days = days_map.get(period, 30)
-    return _fetch_candles(ticker.upper(), days=days)
+    # Directly use Yahoo for the specific period endpoints since Finnhub candle is likely blocked
+    return _fetch_yahoo_candles(ticker.upper(), period)
