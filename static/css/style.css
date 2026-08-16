@@ -205,7 +205,6 @@ body {
 .sidebar-btn:hover {
     background: #00f08a;
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0, 212, 126, 0.25);
 }
 
 .sidebar__section { margin-bottom: 20px; }
@@ -467,7 +466,6 @@ body {
 
 .cta-primary:hover {
     background: #00f08a;
-    box-shadow: 0 4px 16px rgba(0, 212, 126, 0.3);
     transform: translateY(-1px);
 }
 
@@ -747,7 +745,6 @@ body {
 .curr-btn.active {
     background: var(--bg-4);
     color: var(--cyan);
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
 /* Export Button */
@@ -869,7 +866,6 @@ body {
 
 .rec-signal.strong-buy {
     color: var(--green);
-    text-shadow: 0 0 20px rgba(0, 212, 126, 0.4);
 }
 
 .rec-signal.buy { color: var(--green); }
@@ -878,7 +874,6 @@ body {
 
 .rec-signal.strong-sell {
     color: var(--red);
-    text-shadow: 0 0 20px rgba(248, 81, 73, 0.4);
 }
 
 .rec-summary {
@@ -1038,7 +1033,6 @@ body {
     border: 3px solid var(--cyan);
     transform: translateX(-50%);
     transition: left 1s ease;
-    box-shadow: 0 0 8px rgba(88, 166, 255, 0.4);
 }
 
 .risk-scale {
