@@ -1,32 +1,23 @@
 # Investment Planning Advisory System
 
-**GenAI-Based Real-Time Investment Advisory System | Python, SQL, NLP**
+A stock analysis tool that fetches real-time market data, scores news sentiment with NLP, evaluates risk across six weighted factors, and produces buy/sell/hold recommendations.
 
-**[Live Demo →](https://investment-planning-advisory-system.onrender.com/)**
+**[Live Demo](https://investment-planning-advisory-system.onrender.com/)**
 
-A full-stack AI-powered investment advisory system that analyzes real-time stock market data, performs NLP sentiment analysis on financial news, evaluates multi-factor risk, and generates actionable investment insights using GenAI.
-
-![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white)
-![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white)
-![SQLite](https://img.shields.io/badge/SQLite-003B57?style=for-the-badge&logo=sqlite&logoColor=white)
-![NLP](https://img.shields.io/badge/NLP-VADER-FF6F00?style=for-the-badge)
-![Gemini](https://img.shields.io/badge/Gemini_AI-4285F4?style=for-the-badge&logo=google&logoColor=white)
-![Render](https://img.shields.io/badge/Deployed_on-Render-46E3B7?style=for-the-badge&logo=render&logoColor=white)
+Built with Python, FastAPI, SQLite, VADER sentiment analysis, and Google Gemini (optional).
 
 ---
 
 ## Features
 
-| Feature | Description |
-|---|---|
-| **Real-Time Stock Data** | Fetches live prices, P/E ratios, market cap, financial statements via `yfinance` API |
-| **Financial News Aggregation** | Collects news from Yahoo Finance & Google News RSS feeds |
-| **NLP Sentiment Analysis** | VADER-based sentiment scoring with 40+ finance-specific lexicon terms |
-| **Multi-Factor Risk Evaluation** | 6-factor weighted risk scoring (P/E, volatility, debt, sentiment, margins, beta) |
-| **GenAI Investment Insights** | Google Gemini-powered actionable recommendations with confidence levels |
-| **Premium Dark Dashboard** | Terminal-style UI with Chart.js visualizations and real-time data rendering |
-| **SQL Data Pipeline** | SQLite database with structured schema for stocks, prices, news, sentiment, insights |
-| **Automated Pipeline** | End-to-end automated analysis: fetch → analyze → score → generate insights |
+- **Real-time stock data** — live prices, P/E, market cap, financials via yfinance
+- **News sentiment scoring** — VADER with 40+ finance-specific lexicon terms on Yahoo Finance and Google News headlines
+- **6-factor risk evaluation** — weighted scoring across valuation, volatility, leverage, sentiment, margins, and beta
+- **Investment recommendations** — Gemini-powered (or rule-based fallback) BUY/SELL/HOLD with confidence levels
+- **Stock comparison** — compare multiple tickers side-by-side on price, sentiment, risk, and recommendation
+- **CSV export** — download analysis results for any stock
+- **SQLite storage** — 5 normalized tables for stocks, prices, news, sentiment, and insights
+- **Mobile-responsive** — slide-out sidebar navigation on smaller screens
 
 ---
 
@@ -40,60 +31,43 @@ A full-stack AI-powered investment advisory system that analyzes real-time stock
 
 | Layer | Technology |
 |---|---|
-| **Language** | Python 3.10+ |
-| **Web Framework** | FastAPI + Uvicorn |
-| **Database** | SQLite (via `sqlite3`) |
-| **Stock Data API** | `yfinance` |
-| **News Data** | RSS feeds via `feedparser` |
-| **NLP / Sentiment** | NLTK VADER (with custom financial lexicon) |
-| **GenAI** | Google Gemini (`google-generativeai`) |
-| **Frontend** | HTML5, CSS3, JavaScript, Chart.js |
-| **Templating** | Jinja2 |
+| Language | Python 3.10+ |
+| Web Framework | FastAPI + Uvicorn |
+| Database | SQLite |
+| Stock Data | yfinance |
+| News | RSS feeds via feedparser |
+| NLP | NLTK VADER + custom financial lexicon |
+| GenAI (optional) | Google Gemini |
+| Frontend | HTML5, CSS3, JavaScript, Chart.js, Font Awesome |
+| Templating | Jinja2 |
 
 ---
 
 ## Quick Start
 
-### 1. Clone the Repository
-
 ```bash
+# Clone
 git clone https://github.com/SinkAnkit/investment-planning-advisory-system.git
 cd investment-planning-advisory-system
-```
 
-### 2. Set Up Virtual Environment
-
-```bash
+# Set up environment
 python3 -m venv venv
-source venv/bin/activate   # Linux/Mac
-# venv\Scripts\activate    # Windows
-```
+source venv/bin/activate  # Linux/Mac
+# venv\Scripts\activate   # Windows
 
-### 3. Install Dependencies
-
-```bash
+# Install dependencies
 pip install -r requirements.txt
-```
 
-### 4. Configure Environment (Optional)
+# (Optional) Add Gemini API key for AI-powered insights
+echo "GEMINI_API_KEY=your_key_here" > .env
 
-Add your Gemini API key to `.env` for AI-powered insights:
-
-```env
-GEMINI_API_KEY=your_gemini_api_key_here
-```
-
-> **Note:** The system works without a Gemini key — it falls back to a rule-based recommendation engine.
-
-### 5. Run the Server
-
-```bash
+# Run
 python -m uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
-### 6. Open Dashboard
+Then open **http://localhost:8000**.
 
-Navigate to **http://localhost:8000** in your browser.
+The system works without a Gemini key — it falls back to a rule-based recommendation engine.
 
 ---
 
@@ -101,94 +75,68 @@ Navigate to **http://localhost:8000** in your browser.
 
 | Method | Endpoint | Description |
 |---|---|---|
-| `GET` | `/` | Web Dashboard |
-| `GET` | `/api/analyze/{ticker}` | Run full analysis pipeline for a stock |
-| `GET` | `/api/batch?tickers=AAPL,GOOGL` | Batch analyze multiple stocks |
-| `GET` | `/api/stocks` | List all analyzed stocks |
-| `GET` | `/api/stock/{ticker}` | Get cached stock details |
-| `GET` | `/api/news/{ticker}` | Get news + sentiment for a stock |
-| `GET` | `/api/insights/{ticker}` | Get latest AI investment insight |
-| `GET` | `/api/prices/{ticker}?period=1mo` | Get price history (1mo, 3mo, 1y) |
-| `DELETE` | `/api/stock/{ticker}` | Remove a stock from history |
-| `GET` | `/api/health` | Health check |
+| GET | `/` | Web dashboard |
+| GET | `/api/analyze/{ticker}` | Run full pipeline for a stock |
+| GET | `/api/batch?tickers=AAPL,GOOGL` | Batch analyze (max 10) |
+| GET | `/api/stocks` | List all analyzed stocks |
+| GET | `/api/stock/{ticker}` | Get cached stock data |
+| GET | `/api/news/{ticker}` | News + sentiment for a stock |
+| GET | `/api/insights/{ticker}` | Latest investment insight |
+| GET | `/api/prices/{ticker}?period=1mo` | Price history (1mo, 3mo, 1y) |
+| DELETE | `/api/stock/{ticker}` | Remove from history |
+| GET | `/api/health` | Health check |
+
+---
+
+## How It Works
+
+1. **Data collection** — yfinance for real-time prices and financials; feedparser for RSS news from Yahoo Finance and Google News.
+
+2. **Sentiment analysis** — NLTK VADER enhanced with finance-specific terms (bullish, bearish, rally, crash, etc.). Each headline gets a compound score; aggregate per stock.
+
+3. **Risk evaluation** — 6-factor weighted model:
+   - P/E Ratio (20%) — valuation
+   - Price Volatility (20%) — 52-week range
+   - Debt-to-Equity (20%) — leverage
+   - Sentiment (20%) — market mood
+   - Profit Margins (15%) — operational health
+   - Beta (5%) — market sensitivity
+
+4. **Recommendation** — All metrics fed to Gemini for a structured recommendation (or rule-based fallback if no API key). Output includes confidence level, key reasons, and risk warnings.
 
 ---
 
 ## Project Structure
 
 ```
-investment-planning-advisory-system/
-├── main.py                      # FastAPI application (9 endpoints)
-├── config.py                    # Configuration & environment variables
-├── requirements.txt             # Python dependencies
-├── .env                         # API keys (Gemini)
+├── main.py                  # FastAPI app (9 endpoints)
+├── config.py                # Configuration
+├── requirements.txt         # Dependencies
 ├── data/
-│   ├── __init__.py              # SQLite schema + CRUD operations
-│   ├── stock_fetcher.py         # yfinance real-time data fetcher
-│   └── news_fetcher.py          # RSS financial news fetcher
+│   ├── __init__.py          # SQLite schema + CRUD
+│   ├── stock_fetcher.py     # yfinance data fetcher
+│   └── news_fetcher.py      # RSS news fetcher
 ├── analysis/
-│   ├── __init__.py              # VADER NLP sentiment analyzer
-│   ├── risk_evaluator.py        # Multi-factor risk scoring engine
-│   └── insight_generator.py     # Gemini AI insight generator
+│   ├── __init__.py          # VADER sentiment analyzer
+│   ├── risk_evaluator.py    # Risk scoring engine
+│   └── insight_generator.py # Gemini / rule-based insights
 ├── pipeline/
-│   └── __init__.py              # Automated analysis orchestrator
+│   └── __init__.py          # Pipeline orchestrator
 ├── static/
-│   ├── css/style.css            # Premium dark theme dashboard
-│   └── js/app.js                # Interactive dashboard logic
+│   ├── css/style.css
+│   └── js/app.js
 └── templates/
-    └── index.html               # Main dashboard template
-```
-
----
-
-## How It Works
-
-### 1. Data Collection
-- **Stock Data:** Uses `yfinance` to fetch real-time prices, P/E ratios, market cap, revenue, profit margins, debt-to-equity, and 30-day price history
-- **News Data:** Aggregates financial headlines from Yahoo Finance and Google News RSS feeds via `feedparser`
-
-### 2. NLP Sentiment Analysis
-- Uses NLTK's **VADER** (Valence Aware Dictionary for Sentiment Reasoning)
-- Enhanced with **40+ finance-specific terms** (bullish, bearish, rally, crash, etc.)
-- Classifies each headline as Very Positive / Positive / Neutral / Negative / Very Negative
-- Computes aggregate sentiment score per stock
-
-### 3. Risk Evaluation
-- **6-factor weighted scoring** combining structured and unstructured data:
-  - P/E Ratio (20%) — valuation risk
-  - Price Volatility (20%) — 52-week range analysis
-  - Debt-to-Equity (20%) — leverage risk
-  - Sentiment Polarity (20%) — market mood from NLP
-  - Profit Margins (15%) — operational health
-  - Beta (5%) — market sensitivity
-- Classifies overall risk as Low / Medium / High
-
-### 4. GenAI Insight Generation
-- Sends complete analysis (metrics + sentiment + risk) to **Google Gemini**
-- Gemini generates: recommendation, confidence level, executive summary, key reasons, risk warnings
-- **Fallback:** Rule-based engine generates insights if Gemini is unavailable
-
----
-
-## Database Schema (SQL)
-
-```sql
--- 5 normalized tables
-stocks            -- Core stock info (ticker, name, sector, metrics)
-stock_prices      -- 30-day historical OHLCV data
-financial_news    -- Aggregated news articles
-sentiment_scores  -- NLP sentiment per article
-investment_insights -- Generated AI recommendations
+    └── index.html
 ```
 
 ---
 
 ## Disclaimer
 
-This project is for **educational and research purposes only**. It is not financial advice. Always conduct your own due diligence before making investment decisions.
+This is an educational project. It is not financial advice. Always do your own research before making investment decisions.
 
 ---
 
 ## License
 
-MIT License — see [LICENSE](LICENSE) for details.
+MIT

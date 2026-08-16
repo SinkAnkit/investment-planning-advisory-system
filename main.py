@@ -1,4 +1,4 @@
-"""FastAPI application — serves API endpoints and the web dashboard."""
+"""FastAPI application - serves API endpoints and the web dashboard."""
 import json
 from pathlib import Path
 from fastapi import FastAPI, Request, Query
@@ -9,10 +9,9 @@ from data import init_db, get_all_stocks, get_stock, get_news, get_latest_insigh
 from data.stock_fetcher import fetch_price_history
 from pipeline import run_pipeline, run_batch_pipeline, get_cached_analysis
 
-# ── App setup ───────────────────────────────────────────────────────────
 app = FastAPI(
     title="Investment Planning Advisory System",
-    description="Real-time stock analysis with sentiment analysis and AI-powered investment insights",
+    description="Real-time stock analysis with sentiment scoring and investment recommendations",
     version="1.0.0",
 )
 
@@ -27,16 +26,11 @@ def startup():
     init_db()
 
 
-# ── Dashboard ───────────────────────────────────────────────────────────
-
 @app.get("/", response_class=HTMLResponse)
 async def dashboard(request: Request):
     """Serve the main dashboard page."""
     stocks = get_all_stocks()
     return templates.TemplateResponse(request, "index.html", {"stocks": stocks})
-
-
-# ── API Endpoints ───────────────────────────────────────────────────────
 
 @app.get("/api/analyze/{ticker}")
 async def analyze_stock(ticker: str):

@@ -1,15 +1,14 @@
-/* ══════════════════════════════════════════════════════════════════════
-   Investment Planning Advisory System — Terminal UI Logic
-   ══════════════════════════════════════════════════════════════════════ */
+/* Investment Planning Advisory System - Dashboard Logic */
 
 let priceChart = null;
 let sentimentChart = null;
 let currentTicker = '';
 let currentCurrency = 'USD';
 let currentStockData = null;
+let compareStocks = [];
 const EXCHANGE_RATE_INR = 83.50;
 
-/* ── Helpers ────────────────────────────────────────────────────────── */
+/* Helpers */
 
 function fmt$(val) {
     if (val == null || val === 'N/A') return '—';
@@ -48,7 +47,7 @@ function fmtD(val, d = 2) {
     return Number(val).toFixed(d);
 }
 
-/* ── Loading ────────────────────────────────────────────────────────── */
+/* Loading Animation */
 
 function showLoading() {
     document.getElementById('loadingOverlay').style.display = 'flex';
@@ -97,7 +96,7 @@ function hideLoading() {
     }, 400);
 }
 
-/* ── Core ───────────────────────────────────────────────────────────── */
+/* Core Analysis */
 
 async function analyzeStock() {
     const input = document.getElementById('tickerInput');
@@ -146,9 +145,9 @@ async function runAnalysis(ticker, skipPushState = false) {
         document.querySelector('.period-btn[data-period="1mo"]').classList.add('active');
         // Update URL state
         if (!skipPushState) {
-            history.pushState({ ticker }, `IPAS — ${ticker}`, `#/analyze/${ticker}`);
+            history.pushState({ ticker }, `IPAS - ${ticker}`, `#/analyze/${ticker}`);
         }
-        document.title = `IPAS — ${ticker} Analysis`;
+        document.title = `IPAS - ${ticker} Analysis`;
     } catch (err) {
         console.error(err);
         alert('Analysis failed. Check console.');
@@ -157,7 +156,7 @@ async function runAnalysis(ticker, skipPushState = false) {
     }
 }
 
-/* ── Chart Period Switch ────────────────────────────────────────────── */
+/* Chart Period Switch */
 
 function switchPeriod(period, btn) {
     if (!currentTicker) return;
@@ -166,7 +165,7 @@ function switchPeriod(period, btn) {
     fetchPriceChart(currentTicker, period);
 }
 
-/* ── History Removal ────────────────────────────────────────────────── */
+/* History Removal */
 
 async function removeStock(ticker) {
     try {
@@ -180,7 +179,6 @@ async function removeStock(ticker) {
                 el.style.transform = 'translateX(-10px)';
                 setTimeout(() => el.remove(), 300);
             }
-            // Check if history section is empty
             setTimeout(() => {
                 const list = document.getElementById('historyList');
                 if (list && list.children.length === 0) {
@@ -194,7 +192,7 @@ async function removeStock(ticker) {
     }
 }
 
-/* ── Populate All ───────────────────────────────────────────────────── */
+/* Populate All Panels */
 
 function populate(data) {
     const s = data.stock || {};
@@ -245,7 +243,7 @@ function populate(data) {
     buildNews(data);
 }
 
-/* ── Recommendation ─────────────────────────────────────────────────── */
+/* Recommendation Panel */
 
 function buildRec(ins) {
     const rec = (ins.recommendation || 'HOLD').toUpperCase();
@@ -276,7 +274,7 @@ function buildRec(ins) {
         '<h4>RISK WARNINGS</h4>' + warnings.map(w => `<div class="warning-item"><span>▸</span><span>${w}</span></div>`).join('') : '';
 }
 
-/* ── Sentiment ──────────────────────────────────────────────────────── */
+/* Sentiment Panel */
 
 function buildSentiment(sen) {
     const avg = sen.average_sentiment || 0;
@@ -339,7 +337,7 @@ function drawSentimentBars(recent) {
     });
 }
 
-/* ── Risk ───────────────────────────────────────────────────────────── */
+/* Risk Panel */
 
 function buildRisk(risk) {
     const score = risk.risk_score || 0;
@@ -365,7 +363,7 @@ function buildRisk(risk) {
     }).join('');
 }
 
-/* ── News ───────────────────────────────────────────────────────────── */
+/* News Panel */
 
 function buildNews(data) {
     const feed = document.getElementById('newsFeed');
@@ -381,7 +379,7 @@ function buildNews(data) {
     }).join('');
 }
 
-/* ── Price Chart ────────────────────────────────────────────────────── */
+/* Price Chart */
 
 async function fetchPriceChart(ticker, period) {
     try {
@@ -439,19 +437,192 @@ function drawPriceChart(prices) {
     });
 }
 
-/* ── Events ─────────────────────────────────────────────────────────── */
+/* CSV Export */
+
+function exportCSV() {
+    if (!currentStockData) return;
+
+    const s = currentStockData.stock || {};
+    const ins = currentStockData.insight || {};
+    const sen = currentStockData.sentiment || {};
+    const r = currentStockData.risk || {};
+
+    const rows = [
+        ['Field', 'Value'],
+        ['Ticker', s.ticker || ''],
+        ['Name', s.name || ''],
+        ['Sector', s.sector || ''],
+        ['Price', s.price || ''],
+        ['P/E Ratio', s.pe_ratio || ''],
+        ['Market Cap', s.market_cap || ''],
+        ['52W High', s.week_52_high || ''],
+        ['52W Low', s.week_52_low || ''],
+        ['Volume', s.volume || ''],
+        ['Beta', s.beta || ''],
+        ['Revenue', s.revenue || ''],
+        ['Profit Margin', s.profit_margin || ''],
+        ['Return on Equity', s.return_on_equity || ''],
+        ['Debt to Equity', s.debt_to_equity || ''],
+        ['Free Cash Flow', s.free_cash_flow || ''],
+        ['Dividend Yield', s.dividend_yield || ''],
+        ['Sentiment Score', sen.average_sentiment || ''],
+        ['Sentiment Label', sen.overall_label || ''],
+        ['Risk Score', r.risk_score || ''],
+        ['Risk Level', r.risk_level || ''],
+        ['Recommendation', ins.recommendation || ''],
+        ['Confidence', ins.confidence || ''],
+        ['Summary', `"${(ins.summary || '').replace(/"/g, '""')}"`],
+    ];
+
+    // Add risk factors
+    if (r.factors && r.factors.length) {
+        rows.push(['', '']);
+        rows.push(['Risk Factor', 'Score', 'Detail']);
+        r.factors.forEach(f => {
+            rows.push([f.name, f.score, `"${(f.detail || '').replace(/"/g, '""')}"`]);
+        });
+    }
+
+    // Add news headlines
+    if (sen.recent_scores && sen.recent_scores.length) {
+        rows.push(['', '']);
+        rows.push(['News Headline', 'Sentiment Score']);
+        sen.recent_scores.forEach(n => {
+            rows.push([`"${(n.title || '').replace(/"/g, '""')}"`, n.compound || 0]);
+        });
+    }
+
+    const csv = rows.map(r => r.join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${s.ticker || 'analysis'}_report.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+}
+
+/* Compare Stocks */
+
+async function addCompare() {
+    const input = document.getElementById('compareInput');
+    const ticker = input.value.trim().toUpperCase();
+    if (!ticker) { input.focus(); return; }
+
+    // Don't add duplicates
+    if (compareStocks.find(s => s.ticker === ticker)) {
+        input.value = '';
+        return;
+    }
+
+    input.value = '';
+    input.disabled = true;
+
+    try {
+        const res = await fetch(`/api/analyze/${ticker}`);
+        const data = await res.json();
+        if (data.status === 'error') {
+            alert(`Could not analyze ${ticker}: ${data.error}`);
+            input.disabled = false;
+            return;
+        }
+        compareStocks.push(data);
+        renderCompareTable();
+    } catch (err) {
+        console.error(err);
+        alert(`Failed to fetch data for ${ticker}`);
+    }
+    input.disabled = false;
+}
+
+function removeCompare(ticker) {
+    compareStocks = compareStocks.filter(s => (s.stock || {}).ticker !== ticker);
+    renderCompareTable();
+}
+
+function clearCompare() {
+    compareStocks = [];
+    renderCompareTable();
+}
+
+function renderCompareTable() {
+    const tbody = document.getElementById('compareBody');
+    if (!compareStocks.length) {
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:#6e7681;padding:20px;">Add tickers above to compare</td></tr>';
+        return;
+    }
+
+    tbody.innerHTML = compareStocks.map(data => {
+        const s = data.stock || {};
+        const sen = data.sentiment || {};
+        const r = data.risk || {};
+        const ins = data.insight || {};
+        const sentColor = (sen.average_sentiment || 0) > 0.05 ? '#00d47e' : (sen.average_sentiment || 0) < -0.05 ? '#f85149' : '#d29922';
+        const riskColor = (r.risk_level || '').toLowerCase() === 'low' ? '#00d47e' : (r.risk_level || '').toLowerCase() === 'high' ? '#f85149' : '#d29922';
+        const recColor = (ins.recommendation || '').toLowerCase().includes('buy') ? '#00d47e' : (ins.recommendation || '').toLowerCase().includes('sell') ? '#f85149' : '#d29922';
+
+        return `<tr>
+            <td class="ticker-cell">${s.ticker || '—'}</td>
+            <td>$${Number(s.price || 0).toFixed(2)}</td>
+            <td>${s.pe_ratio ? Number(s.pe_ratio).toFixed(1) : '—'}</td>
+            <td>${fmt$(s.market_cap)}</td>
+            <td style="color:${sentColor}">${(sen.average_sentiment || 0) >= 0 ? '+' : ''}${(sen.average_sentiment || 0).toFixed(3)}</td>
+            <td style="color:${riskColor}">${(r.risk_level || 'N/A').toUpperCase()}</td>
+            <td style="color:${recColor};font-weight:700">${(ins.recommendation || 'N/A').toUpperCase()}</td>
+            <td><button class="compare-remove-btn" onclick="removeCompare('${s.ticker}')"><i class="fa-solid fa-xmark"></i></button></td>
+        </tr>`;
+    }).join('');
+}
+
+/* Mobile Navigation */
+
+function initMobileNav() {
+    const toggle = document.getElementById('mobileNavToggle');
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+
+    if (!toggle || !sidebar || !overlay) return;
+
+    toggle.addEventListener('click', () => {
+        sidebar.classList.toggle('open');
+        overlay.classList.toggle('active');
+    });
+
+    overlay.addEventListener('click', () => {
+        sidebar.classList.remove('open');
+        overlay.classList.remove('active');
+    });
+
+    // Close sidebar when a quick-access button is tapped on mobile
+    sidebar.querySelectorAll('.sticker, .hist-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            if (window.innerWidth <= 768) {
+                sidebar.classList.remove('open');
+                overlay.classList.remove('active');
+            }
+        });
+    });
+}
+
+/* Events */
 
 document.getElementById('tickerInput').addEventListener('keydown', e => { if (e.key === 'Enter') analyzeStock(); });
 document.getElementById('tickerInput').addEventListener('input', e => { e.target.value = e.target.value.toUpperCase(); });
 
-/* ── Routing ────────────────────────────────────────────────────────── */
+const compareInput = document.getElementById('compareInput');
+if (compareInput) {
+    compareInput.addEventListener('keydown', e => { if (e.key === 'Enter') addCompare(); });
+    compareInput.addEventListener('input', e => { e.target.value = e.target.value.toUpperCase(); });
+}
+
+/* Routing */
 
 function showHome() {
     document.getElementById('welcomeSection').style.display = '';
     document.getElementById('mainContent').style.display = 'none';
     document.getElementById('loadingOverlay').style.display = 'none';
     currentTicker = '';
-    document.title = 'IPAS — Investment Planning Advisory System';
+    document.title = 'IPAS - Investment Planning Advisory System';
 }
 
 function getTickerFromHash() {
@@ -460,8 +631,7 @@ function getTickerFromHash() {
     return match ? match[1].toUpperCase() : null;
 }
 
-// Handle browser back/forward button
-window.addEventListener('popstate', (e) => {
+window.addEventListener('popstate', () => {
     const ticker = getTickerFromHash();
     if (ticker) {
         document.getElementById('tickerInput').value = ticker;
@@ -471,11 +641,12 @@ window.addEventListener('popstate', (e) => {
     }
 });
 
-// Restore state on page load/refresh
 window.addEventListener('DOMContentLoaded', () => {
     const ticker = getTickerFromHash();
     if (ticker) {
         document.getElementById('tickerInput').value = ticker;
         runAnalysis(ticker, true);
     }
+    initMobileNav();
+    renderCompareTable();
 });
