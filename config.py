@@ -6,7 +6,12 @@ from dotenv import load_dotenv
 load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent
-DB_PATH = BASE_DIR / "investadvisor.db"
+
+# Use /tmp for SQLite on serverless (Vercel), otherwise project dir
+if os.getenv("VERCEL"):
+    DB_PATH = Path("/tmp/investadvisor.db")
+else:
+    DB_PATH = BASE_DIR / "investadvisor.db"
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
 FINNHUB_API_KEY = os.getenv("FINNHUB_API_KEY", "")

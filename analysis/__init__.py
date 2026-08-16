@@ -1,13 +1,18 @@
-"""NLP Sentiment Analysis using VADER — optimized for financial text."""
+"""NLP Sentiment Analysis using VADER - optimized for financial text."""
+import os
 import nltk
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 from data import get_unscored_news, insert_sentiment, get_avg_sentiment
+
+# Set NLTK data path for serverless environments
+if os.getenv("VERCEL"):
+    nltk.data.path.insert(0, "/tmp/nltk_data")
 
 # Download VADER lexicon on first use
 try:
     nltk.data.find("sentiment/vader_lexicon.zip")
 except LookupError:
-    nltk.download("vader_lexicon", quiet=True)
+    nltk.download("vader_lexicon", quiet=True, download_dir="/tmp/nltk_data" if os.getenv("VERCEL") else None)
 
 # Extend VADER with finance-specific terms
 FINANCE_LEXICON = {
